@@ -17,12 +17,12 @@ class ClassNameFormatter(logging.Formatter):
         caller_frame = stack[8]
         scope = caller_frame[0]
 
+        class_name = ""
+
         if "self" in caller_frame[0].f_locals.keys():
             class_name: str = scope.f_locals["self"].__class__.__name__
             class_name.strip().strip('"')
             class_name = f"{class_name}."
-        else:
-            class_name = ""
 
         record.class_name = class_name
 
