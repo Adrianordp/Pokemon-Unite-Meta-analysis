@@ -16,13 +16,16 @@ class ClassNameFormatter(logging.Formatter):
         stack = inspect.stack()
         caller_frame = stack[8]
         scope = caller_frame[0]
+
         if "self" in caller_frame[0].f_locals.keys():
             class_name: str = scope.f_locals["self"].__class__.__name__
             class_name.strip().strip('"')
             class_name = f"{class_name}."
         else:
             class_name = ""
+
         record.class_name = class_name
+
         return super().format(record)
 
 
@@ -61,8 +64,10 @@ class Log(logging.Handler):
     def emit(self, record):
         try:
             msg = self.format(record)
+
             with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write(f"{msg}\n")
+
         except SyntaxError:
             self.handleError(record)
         except KeyError:
@@ -77,4 +82,5 @@ def setup_custom_logger(name, pid=False, clear=True):
     logger.setLevel(logging.DEBUG)
     custom_handler = Log(name + ".log", pid, clear)
     logger.addHandler(custom_handler)
+
     return logger
