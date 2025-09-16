@@ -230,5 +230,3 @@ if __name__ == "__main__":
     LOG.info("Running as main")
 
     main()
-    main()
-    main()
