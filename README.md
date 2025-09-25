@@ -18,3 +18,12 @@ Python package and uses Poetry for dependency management.
    ```bash
    poetry install
    ```
+3. Run tests to verify setup:
+   ```bash
+   poetry run pytest
+   ```
+4. Start the development server:
+   ```bash
+   poetry run uvicorn main:app --reload
+   ```
+5. Access the API documentation at `http://localhost:8000/docs`
