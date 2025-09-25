@@ -3,7 +3,6 @@ import sys
 import os
 import tempfile
 import shutil
-import pytest
 
 # Integration test for CLI workflow: end-to-end data retrieval
 
