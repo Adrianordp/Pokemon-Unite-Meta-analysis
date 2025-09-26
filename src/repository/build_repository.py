@@ -95,6 +95,9 @@ class BuildRepository:
         """
         Create a new build
         """
+        if not self.table_name:
+            print("Table name not set")
+            return False
         try:
             self._create_table()
             self.cursor.execute(
