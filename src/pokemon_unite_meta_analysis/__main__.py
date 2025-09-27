@@ -1,5 +1,10 @@
 """
-Metadata analysis module
+Metadata analysis module for Pokémon Unite builds.
+
+This module retrieves and processes Pokémon build data from a database,
+sorting and displaying it based on specific criteria such as moveset item true
+pick rate and moveset item win rate. The output is color-coded for better
+readability based on the role of each Pokémon.
 """
 
 import re
