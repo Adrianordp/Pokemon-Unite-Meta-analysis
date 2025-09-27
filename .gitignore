@@ -1,8 +1,6 @@
 __pycache__/
 .vscode/
 
-.github/*.md
-
 *.db
 *.log
 
