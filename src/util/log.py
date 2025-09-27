@@ -1,5 +1,20 @@
 """
-Custom logger
+Custom logging utilities for enhanced log messages.
+
+This module provides:
+- A custom log formatter (`ClassNameFormatter`) that injects the caller's class
+    name into log records.
+- A file-based log handler (`Log`) that writes formatted log messages to a file,
+    with options to include process ID and clear previous logs.
+- A helper function (`setup_custom_logger`) to easily configure a logger with
+    these custom features.
+
+Usage:
+    logger = setup_custom_logger("my_module")
+    logger.info("This is a log message.")
+
+The log output includes timestamps, logger name, log level, module, line number,
+class name, function name, and the message.
 """
 
 import inspect
