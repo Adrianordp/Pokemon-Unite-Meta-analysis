@@ -22,7 +22,6 @@ from util.log import setup_custom_logger
 LOG = setup_custom_logger("manipulate_builds")
 
 
-
 class ManipulateBuilds:
     """
     This is the constructor (`__init__`) of the `ManipulateBuilds` class. It
@@ -49,7 +48,11 @@ class ManipulateBuilds:
         self.date = date
 
     def _most_relevant(
-        self, builds: list[Build], relevance: Relevance, threshold: float
+        self,
+        builds: list[Build],
+        relevance: Relevance,
+        threshold: float,
+        get_builds: callable,
     ) -> list[Build]:
         LOG.info("Getting n most relevant builds")
         LOG.debug("builds: %s", builds)
@@ -60,8 +63,8 @@ class ManipulateBuilds:
 
         if not strategy:
             raise ValueError(f"Relevance {relevance} is not supported")
-        
-        return strategy(builds, threshold, self._get_builds)
+
+        return strategy(builds, threshold, get_builds)
 
     def _head(self, builds: list[Build], n: int = 0) -> list[Build]:
         LOG.info("Getting head of builds")
@@ -153,7 +156,7 @@ class ManipulateBuilds:
         builds = self._get_builds()
 
         relevant_builds = self._most_relevant(
-            builds, relevance, relevance_threshold
+            builds, relevance, relevance_threshold, get_builds=lambda: builds
         )
 
         sorted_builds = self._sort(relevant_builds, sort_by)
