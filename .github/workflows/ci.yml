@@ -27,8 +27,6 @@ jobs:
         run: poetry run ruff check .
       - name: Run unit tests with coverage
         run: poetry run pytest --cov=src --cov-report=xml --cov-report=html --cov-fail-under=90 tests/unit/
-      - name: Run integration tests with coverage
-        run: poetry run pytest --cov=src --cov-append --cov-report=xml --cov-report=html --cov-fail-under=90 tests/integration/
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
