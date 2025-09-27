@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.13]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v3
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: Lint with ruff
+        run: poetry run ruff check .
+      - name: Run unit tests with coverage
+        run: poetry run pytest --cov=src --cov-report=xml --cov-report=html --cov-fail-under=90 tests/unit/
+      - name: Run integration tests with coverage
+        run: poetry run pytest --cov=src --cov-append --cov-report=xml --cov-report=html --cov-fail-under=90 tests/integration/
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
