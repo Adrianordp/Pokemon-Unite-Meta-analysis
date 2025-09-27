@@ -1,5 +1,9 @@
 """
-ManipulateBuilds module
+ManipulateBuilds module for Pokémon Unite builds.
+
+This module provides functionality to manipulate and analyze Pokémon build
+data stored in a database. It includes classes and methods to sort, filter,
+and retrieve builds based on various criteria.
 """
 
 import json
