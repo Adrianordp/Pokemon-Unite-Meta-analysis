@@ -63,6 +63,7 @@ def print_sorted_data():
     # rename columns
     builds_sorted = builds_sorted.rename(
         columns={
+            "level_0": "PopRank",
             "pokemon": "Pokemon",
             "role": "Role",
             "pkm_win_rate": "WR",
