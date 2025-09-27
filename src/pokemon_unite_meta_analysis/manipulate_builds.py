@@ -7,46 +7,20 @@ and retrieve builds based on various criteria.
 """
 
 import json
-from enum import Enum
 
 from entity.build import Build
+from pokemon_unite_meta_analysis.relevance_strategy import (
+    RELEVANCE_STRATEGIES,
+    Relevance,
+)
+from pokemon_unite_meta_analysis.sort_by import SortBy
 from repository.build_repository import BuildRepository
 from util.log import setup_custom_logger
 
 # import rich
 
-
 LOG = setup_custom_logger("manipulate_builds")
 
-
-class SortBy(Enum):
-    """
-    SortBy enum class
-    """
-
-    POKEMON = "pokemon"
-    ROLE = "role"
-    POKEMON_WIN_RATE = "pokemon_win_rate"
-    POKEMON_PICK_RATE = "pokemon_pick_rate"
-    MOVE_1 = "move_1"
-    MOVE_2 = "move_2"
-    MOVESET_WIN_RATE = "moveset_win_rate"
-    MOVESET_PICK_RATE = "moveset_pick_rate"
-    MOVESET_TRUE_PICK_RATE = "moveset_true_pick_rate"
-    ITEM = "item"
-    MOVESET_ITEM_WIN_RATE = "moveset_item_win_rate"
-    MOVESET_ITEM_PICK_RATE = "moveset_item_pick_rate"
-    MOVESET_ITEM_TRUE_PICK_RATE = "moveset_item_true_pick_rate"
-
-
-class Relevance(Enum):
-    """
-    Relevance enum class
-    """
-
-    ANY = "any"
-    MOVESET_ITEM_TRUE_PR = "moveset_item_true_pr"
-    POSITION_OF_POPULARITY = "position_of_popularity"
 
 
 class ManipulateBuilds:
@@ -82,31 +56,12 @@ class ManipulateBuilds:
         LOG.debug("relevance: %s", relevance)
         LOG.debug("threshold: %s", threshold)
 
-        if relevance == Relevance.ANY:
-            pass
-        elif relevance == Relevance.MOVESET_ITEM_TRUE_PR:
-            builds = [
-                build
-                for build in builds
-                if build.moveset_item_true_pick_rate >= threshold
-            ]
-        elif relevance == Relevance.POSITION_OF_POPULARITY:
-            position = int(threshold - 1)
-            builds = sorted(
-                self._get_builds(),
-                key=lambda build: build.moveset_item_true_pick_rate,
-                reverse=True,
-            )
-            cut_value = builds[position].moveset_item_true_pick_rate
-            builds = [
-                build
-                for build in builds
-                if build.moveset_item_true_pick_rate >= cut_value
-            ]
-        else:
-            raise ValueError(f"Relevance {relevance} is not supported")
+        strategy = RELEVANCE_STRATEGIES.get(relevance)
 
-        return builds
+        if not strategy:
+            raise ValueError(f"Relevance {relevance} is not supported")
+        
+        return strategy(builds, threshold, self._get_builds)
 
     def _head(self, builds: list[Build], n: int = 0) -> list[Build]:
         LOG.info("Getting head of builds")
