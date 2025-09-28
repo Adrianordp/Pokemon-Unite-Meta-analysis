@@ -18,7 +18,7 @@ The API follows RESTful principles and provides endpoints for managing builds.
 Supports query parameters:
   - `week` (e.g., specific week number; default: current week).
   - `id` (e.g., specific build ID).
-  - `relevance` (e.g., `win_rate`, `popularity`, `trend`; default: `win_rate`).
+  - `relevance` (e.g., `percentage`, `quartile`, `top_n`, `cumulative_coverage`; default: `percentage`).
   - `relevance_threshold` (e.g., minimum relevance score; default: dependent on `relevance`).
   - `sort_by` (e.g., `win_rate`, `usage`, `relevance`; default: `win_rate`).
   - `sort_order` (e.g., `asc`, `desc`; default: dependent on `sort_by`).
