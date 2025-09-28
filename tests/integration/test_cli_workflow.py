@@ -18,11 +18,11 @@ def test_cli_print_sorted_data(monkeypatch):
         "../../src/pokemon_unite_meta_analysis/__main__.py",
     )
     cli_path = os.path.abspath(cli_path)
-    db_path = os.path.join(os.path.dirname(__file__), "../../builds.db")
+    db_path = os.path.join(os.path.dirname(__file__), "../../sample_builds.db")
     db_path = os.path.abspath(db_path)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        test_db = os.path.join(tmpdir, "builds.db")
+        test_db = os.path.join(tmpdir, "sample_builds.db")
         shutil.copy(db_path, test_db)
         monkeypatch.setenv("BUILDS_DB_PATH", test_db)
 
