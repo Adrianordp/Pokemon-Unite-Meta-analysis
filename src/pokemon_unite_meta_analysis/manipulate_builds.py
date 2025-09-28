@@ -10,10 +10,7 @@ import json
 
 from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.custom_log import LOG
-from pokemon_unite_meta_analysis.relevance_strategy import (
-    RELEVANCE_STRATEGIES,
-    Relevance,
-)
+from pokemon_unite_meta_analysis.relevance_strategy import RELEVANCE_STRATEGIES
 from pokemon_unite_meta_analysis.sort_by import SortBy
 from repository.build_repository import BuildRepository
 
@@ -48,7 +45,7 @@ class ManipulateBuilds:
     def _most_relevant(
         self,
         builds: list[BuildResponse],
-        relevance: Relevance,
+        relevance: str,
         threshold: float,
         get_builds: callable,
     ) -> list[BuildResponse]:
@@ -57,12 +54,13 @@ class ManipulateBuilds:
         LOG.debug("relevance: %s", relevance)
         LOG.debug("threshold: %s", threshold)
 
-        strategy = RELEVANCE_STRATEGIES.get(relevance)
+        if relevance not in RELEVANCE_STRATEGIES:
+            raise ValueError(f"Invalid relevance: {relevance}")
 
-        if not strategy:
-            raise ValueError(f"Relevance {relevance} is not supported")
-
-        return strategy(builds, threshold, get_builds)
+        relevant_builds = RELEVANCE_STRATEGIES[relevance].apply(
+            builds, threshold, get_builds=get_builds
+        )
+        return relevant_builds
 
     def _head(
         self, builds: list[BuildResponse], n: int = 0
@@ -129,7 +127,7 @@ class ManipulateBuilds:
         self,
         sort_by: SortBy,
         top_n: int = 0,
-        relevance: Relevance = Relevance.ANY,
+        relevance: str = "any",
         relevance_threshold: float = 0.0,
         print_result: bool = False,
     ) -> list[dict]:
@@ -139,8 +137,7 @@ class ManipulateBuilds:
         Args:
             sort_by (SortBy): Sort by
             top_n (int, optional): Top n. Defaults to 0.
-            relevance (Relevance, optional): Relevance. Defaults to
-                Relevance.ANY.
+            relevance (str, optional): Relevance. Defaults to "any".
             relevance_threshold (float, optional): Relevance threshold. Defaults
                 to 0.0.
             print_result (bool, optional): Print result. Defaults to False.
@@ -184,7 +181,7 @@ def main():
     manipulate_builds.run(
         SortBy.MOVESET_ITEM_WIN_RATE,
         50,
-        Relevance.MOVESET_ITEM_TRUE_PR,
+        "moveset_item_true_pr",
         2,
         True,
     )
