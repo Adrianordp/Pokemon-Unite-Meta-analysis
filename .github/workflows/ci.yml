@@ -26,7 +26,7 @@ jobs:
       - name: Lint with ruff
         run: poetry run ruff check .
       - name: Run tests with coverage
-        run: BUILDS_DB_PATH=builds_sample.db poetry run pytest --cov=src --cov-report=xml --cov-report=html --cov-fail-under=90
+        run: BUILDS_DB_PATH=sample_builds.db poetry run pytest --cov=src --cov-report=xml --cov-report=html --cov-fail-under=90
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
