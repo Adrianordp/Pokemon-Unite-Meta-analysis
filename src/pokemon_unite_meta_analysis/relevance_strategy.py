@@ -202,7 +202,7 @@ class CumulativeCoverageRelevanceStrategy:
             reverse=True,
         )
         cumulative = 0.0
-        selected_builds = []
+        selected_builds: list[BuildResponse] = []
 
         for build in sorted_builds:
             cumulative += build.moveset_item_true_pick_rate
@@ -212,9 +212,7 @@ class CumulativeCoverageRelevanceStrategy:
                 LOG.info("Cumulative coverage threshold met")
                 break
 
-        selected_ids = {build.id for build in selected_builds}
-
-        return [build for build in builds if build.id in selected_ids]
+        return selected_builds
 
 
 class QuartileRelevanceStrategy:
