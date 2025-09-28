@@ -1,5 +1,8 @@
 from entity.build_response import BuildResponse
-from pokemon_unite_meta_analysis.relevance_strategy import RELEVANCE_STRATEGIES
+from pokemon_unite_meta_analysis.relevance_strategy import (
+    RELEVANCE_STRATEGIES,
+    RelevanceStrategy,
+)
 
 
 def make_builds():
@@ -65,6 +68,24 @@ def make_builds():
             moveset_item_true_pick_rate=6,
         ),
     ]
+
+
+class DummyRelevanceStrategy(RelevanceStrategy):
+    pass
+
+
+def test_relevance_not_implemented():
+    # Arrange
+    strategy = DummyRelevanceStrategy()
+
+    try:
+        # Act
+        strategy.apply([], 0.0, lambda: [])
+
+        # Assert
+        assert False, "Expected NotImplementedError"
+    except NotImplementedError:
+        pass  # Expected exception
 
 
 def test_relevance_any():
