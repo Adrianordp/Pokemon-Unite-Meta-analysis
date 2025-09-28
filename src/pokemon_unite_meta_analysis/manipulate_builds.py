@@ -8,7 +8,7 @@ and retrieve builds based on various criteria.
 
 import json
 
-from entity.build import Build
+from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.relevance_strategy import (
     RELEVANCE_STRATEGIES,
     Relevance,
@@ -49,11 +49,11 @@ class ManipulateBuilds:
 
     def _most_relevant(
         self,
-        builds: list[Build],
+        builds: list[BuildResponse],
         relevance: Relevance,
         threshold: float,
         get_builds: callable,
-    ) -> list[Build]:
+    ) -> list[BuildResponse]:
         LOG.info("Getting n most relevant builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("relevance: %s", relevance)
@@ -66,7 +66,9 @@ class ManipulateBuilds:
 
         return strategy(builds, threshold, get_builds)
 
-    def _head(self, builds: list[Build], n: int = 0) -> list[Build]:
+    def _head(
+        self, builds: list[BuildResponse], n: int = 0
+    ) -> list[BuildResponse]:
         LOG.info("Getting head of builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("n: %s", n)
@@ -76,7 +78,9 @@ class ManipulateBuilds:
 
         return builds[:n]
 
-    def _sort(self, builds: list[Build], sort_by: SortBy) -> list[Build]:
+    def _sort(
+        self, builds: list[BuildResponse], sort_by: SortBy
+    ) -> list[BuildResponse]:
         LOG.info("Sorting builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("sort_by: %s", sort_by)
@@ -89,12 +93,12 @@ class ManipulateBuilds:
 
         return data
 
-    def _get_builds(self) -> list[Build]:
+    def _get_builds(self) -> list[BuildResponse]:
         LOG.info("Getting builds from table")
 
         return self.build_repository.get_all_builds_by_table(self.date)
 
-    def _return_builds_as_json(self, builds: list[Build]) -> list[dict]:
+    def _return_builds_as_json(self, builds: list[BuildResponse]) -> list[dict]:
         LOG.info("Returning builds as json")
         LOG.debug("builds: %s", builds)
 

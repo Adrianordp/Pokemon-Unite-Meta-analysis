@@ -1,4 +1,4 @@
-from entity.build import Build
+from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.relevance_strategy import (
     relevance_any,
     relevance_moveset_item_true_pr,
@@ -8,7 +8,7 @@ from pokemon_unite_meta_analysis.relevance_strategy import (
 
 def make_builds():
     return [
-        Build(
+        BuildResponse(
             pokemon="Snorlax",
             role="Defender",
             pokemon_win_rate=0.60,
@@ -23,7 +23,7 @@ def make_builds():
             moveset_item_pick_rate=0.18,
             moveset_item_true_pick_rate=0.12,
         ),
-        Build(
+        BuildResponse(
             pokemon="Gengar",
             role="Speedster",
             pokemon_win_rate=0.58,
@@ -40,20 +40,27 @@ def make_builds():
         ),
     ]
 
+
 def test_relevance_any():
     builds = make_builds()
     result = relevance_any(builds, threshold=0.0, get_builds=lambda: builds)
     assert result == builds
 
+
 def test_relevance_moveset_item_true_pr():
     builds = make_builds()
-    result = relevance_moveset_item_true_pr(builds, threshold=0.11, get_builds=lambda: builds)
+    result = relevance_moveset_item_true_pr(
+        builds, threshold=0.11, get_builds=lambda: builds
+    )
     assert len(result) == 1
     assert result[0].pokemon == "Snorlax"
+
 
 def test_relevance_position_of_popularity():
     builds = make_builds()
     # Should select the most popular (highest moveset_item_true_pick_rate)
-    result = relevance_position_of_popularity(builds, threshold=1, get_builds=lambda: builds)
+    result = relevance_position_of_popularity(
+        builds, threshold=1, get_builds=lambda: builds
+    )
     assert len(result) == 1
     assert result[0].pokemon == "Snorlax"

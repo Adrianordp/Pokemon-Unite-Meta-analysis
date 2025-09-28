@@ -21,18 +21,19 @@ get_table_names:
 commit:
     Commits any pending changes to the database.
 create:
-    Creates a new build in the database, inserting data from a Build object.
+    Creates a new build in the database, inserting data from a BuildResponse
+        object.
 get_all_builds:
     Retrieves all builds from the database.
 
-Note that the_create_table method is prefixed with an underscore, indicating
+Note that the _create_table method is prefixed with an underscore, indicating
     that it is intended to be a private method, not part of the public API.
 """
 
 import os
 import sqlite3
 
-from entity.build import Build
+from entity.build_response import BuildResponse
 from util.log import setup_custom_logger
 
 LOG = setup_custom_logger("log_repository")
@@ -145,12 +146,12 @@ class BuildRepository:
 
         self.conn.commit()
 
-    def create(self, build: Build, commit=True) -> None:
+    def create(self, build: BuildResponse, commit=True) -> None:
         """
         Create a new build
 
         Args:
-            build (Build): The build to create
+            build (BuildResponse): The build to create
             commit (bool, optional): Whether to commit the changes. Defaults to
                 True.
         """
@@ -198,10 +199,10 @@ class BuildRepository:
             print("Table name not set")
             return False
 
-        LOG.info("Build inserted successfully")
+        LOG.info("BuildResponse inserted successfully")
         return True
 
-    def get_all_builds_by_table(self, table_name) -> list[Build]:
+    def get_all_builds_by_table(self, table_name) -> list[BuildResponse]:
         """
         Get all builds
 
@@ -209,7 +210,7 @@ class BuildRepository:
             table_name (str): The name of the table to interact with.
 
         Returns:
-            list[Build]: List of builds
+            list[BuildResponse]: List of builds
         """
         LOG.info("get_all_builds_by_table")
         LOG.debug("table_name: %s", table_name)
@@ -218,7 +219,7 @@ class BuildRepository:
         query = self.cursor.fetchall()
 
         return [
-            Build(
+            BuildResponse(
                 pokemon=build[1],
                 role=build[2],
                 pokemon_win_rate=build[3],

@@ -1,4 +1,4 @@
-from entity.build import Build
+from entity.build_response import BuildResponse
 
 
 def test_build_instantiation():
@@ -18,7 +18,7 @@ def test_build_instantiation():
     moveset_item_true_pick_rate = 0.08
 
     # Act
-    build = Build(
+    build = BuildResponse(
         pokemon=pokemon,
         role=role,
         pokemon_win_rate=pokemon_win_rate,
