@@ -54,9 +54,9 @@ def health_check():
 def get_builds(
     week: Optional[int] = Query(None),
     id: Optional[int] = Query(None),
-    relevance: Optional[str] = Query("win_rate"),
+    relevance: Optional[str] = Query("percentage_cutoff"),
     relevance_threshold: Optional[float] = Query(None),
-    sort_by: Optional[str] = Query("win_rate"),
+    sort_by: Optional[str] = Query("moveset_item_win_rate"),
     sort_order: Optional[str] = Query("desc"),
     pokemon: Optional[str] = Query(None),
     role: Optional[str] = Query(None),
@@ -84,31 +84,53 @@ def get_builds(
 
     # Filtering logic
     if id is not None:
-        builds = [b for b in builds if getattr(b, "id", None) == id]
+        b = builds[id]
+        return [BuildResponse(**b.__dict__)]
+
     if pokemon:
-        pokemon_list = [p.strip() for p in pokemon.split(",")]
-        builds = [b for b in builds if b.pokemon in pokemon_list]
+        pokemon_list = [p.strip().lower() for p in pokemon.split(",")]
+        builds = [b for b in builds if b.pokemon.lower() in pokemon_list]
+
     if role:
-        role_list = [r.strip() for r in role.split(",")]
-        builds = [b for b in builds if b.role in role_list]
+        role_list = [r.strip().lower() for r in role.split(",")]
+        builds = [b for b in builds if b.role.lower() in role_list]
+
     if item:
-        item_list = [i.strip() for i in item.split(",")]
-        builds = [b for b in builds if b.item in item_list]
+        item_list = [i.strip().lower() for i in item.split(",")]
+        builds = [b for b in builds if b.item.lower() in item_list]
+
     if ignore_pokemon:
-        ignore_pokemon_list = [p.strip() for p in ignore_pokemon.split(",")]
-        builds = [b for b in builds if b.pokemon not in ignore_pokemon_list]
+        ignore_pokemon_list = [
+            p.strip().lower() for p in ignore_pokemon.split(",")
+        ]
+        builds = [
+            b for b in builds if b.pokemon.lower() not in ignore_pokemon_list
+        ]
+
     if ignore_item:
-        ignore_item_list = [i.strip() for i in ignore_item.split(",")]
-        builds = [b for b in builds if b.item not in ignore_item_list]
+        ignore_item_list = [i.strip().lower() for i in ignore_item.split(",")]
+        builds = [b for b in builds if b.item.lower() not in ignore_item_list]
+
     if ignore_role:
-        ignore_role_list = [r.strip() for r in ignore_role.split(",")]
-        builds = [b for b in builds if b.role not in ignore_role_list]
+        ignore_role_list = [r.strip().lower() for r in ignore_role.split(",")]
+        builds = [b for b in builds if b.role.lower() not in ignore_role_list]
+
+    if relevance == "percentage_cutoff" and relevance_threshold is None:
+        LOG.warning(
+            "Relevance is 'percentage_cutoff' but no relevance_threshold provided. Using default of 2.0."
+        )
+        relevance_threshold = 2.0  # Default threshold for percentage_cutoff
 
     # Relevance threshold filtering
     if relevance_threshold is not None:
-        if relevance == "win_rate":
+        LOG.debug("Applying relevance threshold filtering")
+
+        if relevance == "percentage_cutoff":
+            LOG.debug("Applying percentage_cutoff filtering")
             builds = [
-                b for b in builds if b.pokemon_win_rate >= relevance_threshold
+                b
+                for b in builds
+                if b.moveset_item_true_pick_rate >= relevance_threshold
             ]
         # Add more relevance strategies as needed
 
@@ -117,6 +139,14 @@ def get_builds(
     if sort_by == "win_rate":
         builds = sorted(
             builds, key=lambda b: b.pokemon_win_rate, reverse=reverse
+        )
+    elif sort_by == "moveset_win_rate":
+        builds = sorted(
+            builds, key=lambda b: b.moveset_win_rate, reverse=reverse
+        )
+    elif sort_by == "moveset_item_win_rate":
+        builds = sorted(
+            builds, key=lambda b: b.moveset_item_win_rate, reverse=reverse
         )
     elif sort_by == "usage":
         builds = sorted(
