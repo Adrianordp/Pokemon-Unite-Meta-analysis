@@ -6,11 +6,11 @@
 > This section tracks feature branches and tasks, grouped to match the "Planned: REST API & Web Features" roadmap.
 
 ### API Foundation (`feature/api-foundation`)
-- [ ] Create branch `feature/api-foundation`
-- [ ] Set up FastAPI server in `src/api/`
-- [ ] Implement health check endpoint
-- [ ] Add environment variable support for API config
-- [ ] Write integration tests for server startup and health check
+- [x] Create branch `feature/api-foundation`
+- [x] Set up FastAPI server in `src/api/`
+- [x] Implement health check endpoint
+- [x] Add environment variable support for API config
+- [x] Write integration tests for server startup and health check
 
 ### Build Retrieval, Filtering & Sorting Endpoints (`feature/builds-endpoint`)
 - [ ] Create branch `feature/builds-endpoint`
