@@ -1,31 +1,14 @@
 from typing import List, Optional
 
 from fastapi import FastAPI, Query
-from pydantic import BaseModel
 
+from api.build_response import BuildResponse
 from repository.build_repository import BuildRepository
 from util.log import setup_custom_logger
 
 from .config import settings
 
 LOG = setup_custom_logger("log_api")
-
-
-# Pydantic response model for Build
-class BuildResponse(BaseModel):
-    pokemon: str
-    role: str
-    pokemon_win_rate: float
-    pokemon_pick_rate: float
-    move_1: str
-    move_2: str
-    moveset_win_rate: float
-    moveset_pick_rate: float
-    moveset_true_pick_rate: float
-    item: str
-    moveset_item_win_rate: float
-    moveset_item_pick_rate: float
-    moveset_item_true_pick_rate: float
 
 
 app = FastAPI(title=settings.api_name, debug=settings.debug)
