@@ -25,6 +25,6 @@ the provided code staged changes.
 **Single File**: Include the relative file path of the file. Example:
 `prefix[src/util/log.py]: message`.
 
-**Multiple Files**: Include dots in the path. Example: `prefix[...]: message`.
+**Multiple Files**: Include dots in the path instead. Example: `prefix[...]: message`.
 
 **Staged Files**: Consider only files that are staged for commit.
