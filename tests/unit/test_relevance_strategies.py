@@ -1,9 +1,5 @@
 from entity.build_response import BuildResponse
-from pokemon_unite_meta_analysis.relevance_strategy import (
-    relevance_any,
-    relevance_moveset_item_true_pr,
-    relevance_position_of_popularity,
-)
+from pokemon_unite_meta_analysis.relevance_strategy import RELEVANCE_STRATEGIES
 
 
 def make_builds():
@@ -43,24 +39,65 @@ def make_builds():
 
 def test_relevance_any():
     builds = make_builds()
-    result = relevance_any(builds, threshold=0.0, get_builds=lambda: builds)
+    result = RELEVANCE_STRATEGIES["any"].apply(
+        builds, threshold=0.0, get_builds=lambda: builds
+    )
     assert result == builds
 
 
-def test_relevance_moveset_item_true_pr():
+def test_relevance_percentage():
     builds = make_builds()
-    result = relevance_moveset_item_true_pr(
+    result = RELEVANCE_STRATEGIES["percentage"].apply(
         builds, threshold=0.11, get_builds=lambda: builds
     )
     assert len(result) == 1
     assert result[0].pokemon == "Snorlax"
 
 
-def test_relevance_position_of_popularity():
+def test_relevance_quartile():
     builds = make_builds()
     # Should select the most popular (highest moveset_item_true_pick_rate)
-    result = relevance_position_of_popularity(
+    result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=1, get_builds=lambda: builds
+    )
+    assert len(result) == 0
+
+
+def test_relevance_quartile_no_threshold():
+    builds = make_builds()
+    # Should select the most popular (highest moveset_item_true_pick_rate)
+    result = RELEVANCE_STRATEGIES["quartile"].apply(
+        builds, threshold=None, get_builds=lambda: builds
+    )
+    assert len(result) == 2
+    assert result[0].pokemon == "Snorlax"
+    assert result[1].pokemon == "Gengar"
+
+
+def test_relevance_invalid():
+    builds = make_builds()
+    try:
+        RELEVANCE_STRATEGIES["invalid"].apply(
+            builds, threshold=0.1, get_builds=lambda: builds
+        )
+        assert False, "Expected KeyError for invalid relevance strategy"
+    except KeyError:
+        pass  # Expected exception
+
+
+def test_relevance_top_n():
+    builds = make_builds()
+    result = RELEVANCE_STRATEGIES["top_n"].apply(
+        builds, threshold=1, get_builds=lambda: builds
+    )
+    assert len(result) == 1
+    assert result[0].pokemon == "Snorlax"
+
+
+def test_relevance_cumulative_coverage():
+    builds = make_builds()
+    result = RELEVANCE_STRATEGIES["cumulative_coverage"].apply(
+        builds, threshold=0.11, get_builds=lambda: builds
     )
     assert len(result) == 1
     assert result[0].pokemon == "Snorlax"
