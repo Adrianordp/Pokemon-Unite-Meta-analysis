@@ -269,13 +269,13 @@ class QuartileRelevanceStrategy:
             return sorted_builds[:quartile_size]
 
         if threshold == 2:
-            return sorted_builds[quartile_size : 2 * quartile_size]
+            return sorted_builds[: 2 * quartile_size]
 
         if threshold == 3:
-            return sorted_builds[2 * quartile_size : 3 * quartile_size]
+            return sorted_builds[: 3 * quartile_size]
 
         if threshold == 4:
-            return sorted_builds[3 * quartile_size :]
+            return sorted_builds[: 4 * quartile_size]
 
         LOG.error("Unexpected case, returning no builds.")
         return []  # Fallback, should not reach here
