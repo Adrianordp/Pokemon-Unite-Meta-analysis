@@ -89,27 +89,42 @@ def test_relevance_not_implemented():
 
 
 def test_relevance_any():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["any"].apply(
         builds, threshold=0, get_builds=lambda: builds
     )
+
+    # Assert
     assert result == builds
 
 
 def test_relevance_percentage():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["percentage"].apply(
         builds, threshold=11, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 1
     assert result[0].pokemon == "Snorlax"
 
 
 def test_relevance_percentage_no_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["percentage"].apply(
         builds, threshold=None, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 4
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -118,18 +133,28 @@ def test_relevance_percentage_no_threshold():
 
 
 def test_relevance_percentage_high_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["percentage"].apply(
         builds, threshold=101, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 0
 
 
 def test_relevance_percentage_zero_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["percentage"].apply(
         builds, threshold=0, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 4
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -138,30 +163,43 @@ def test_relevance_percentage_zero_threshold():
 
 
 def test_relevance_invalid():
+    # Arrange
     builds = make_builds()
     try:
+        # Act
         RELEVANCE_STRATEGIES["invalid"].apply(
             builds, threshold=1, get_builds=lambda: builds
         )
+        # Assert
         assert False, "Expected KeyError for invalid relevance strategy"
     except KeyError:
         pass  # Expected exception
 
 
 def test_relevance_top_n():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["top_n"].apply(
         builds, threshold=1, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 1
     assert result[0].pokemon == "Snorlax"
 
 
 def test_relevance_top_n_no_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["top_n"].apply(
         builds, threshold=None, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 4
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -170,18 +208,28 @@ def test_relevance_top_n_no_threshold():
 
 
 def test_relevance_top_n_zero_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["top_n"].apply(
         builds, threshold=0, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 0
 
 
 def test_relevance_top_n_high_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["top_n"].apply(
         builds, threshold=10, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 4
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -190,19 +238,29 @@ def test_relevance_top_n_high_threshold():
 
 
 def test_relevance_cumulative_coverage():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["cumulative_coverage"].apply(
         builds, threshold=12, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 1
     assert result[0].pokemon == "Snorlax"
 
 
 def test_relevance_cumulative_coverage_no_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["cumulative_coverage"].apply(
         builds, threshold=None, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 4
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -211,18 +269,28 @@ def test_relevance_cumulative_coverage_no_threshold():
 
 
 def test_relevance_cumulative_coverage_zero_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["cumulative_coverage"].apply(
         builds, threshold=0, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 0
 
 
 def test_relevance_cumulative_coverage_high_threshold():
+    # Arrange
     builds = make_builds()
+
+    # Act
     result = RELEVANCE_STRATEGIES["cumulative_coverage"].apply(
         builds, threshold=101, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 4
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -231,21 +299,29 @@ def test_relevance_cumulative_coverage_high_threshold():
 
 
 def test_relevance_quartile():
+    # Arrange
     builds = make_builds()
-    # Should select the most popular (highest moveset_item_true_pick_rate)
+
+    # Act
     result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=1, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 1
     assert result[0].pokemon == "Snorlax"
 
 
 def test_relevance_quartile_no_threshold():
+    # Arrange
     builds = make_builds()
-    # Should select the most popular (highest moveset_item_true_pick_rate)
+
+    # Act
     result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=None, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 4
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -254,40 +330,56 @@ def test_relevance_quartile_no_threshold():
 
 
 def test_relevance_quartile_zero_threshold():
+    # Arrange
     builds = make_builds()
-    # Should select the most popular (highest moveset_item_true_pick_rate)
+
+    # Act
     result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=0, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 0
 
 
 def test_relevance_quartile_zero_sized_builds():
+    # Arrange
     builds = []
-    # Should select the most popular (highest moveset_item_true_pick_rate)
+
+    # Act
     result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=1, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 0
 
 
 def test_relevance_quartile_threshold_2():
+    # Arrange
     builds = make_builds()
-    # Should select the most popular (highest moveset_item_true_pick_rate)
+
+    # Act
     result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=2, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 2
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
 
 
 def test_relevance_quartile_threshold_3():
+    # Arrange
     builds = make_builds()
-    # Should select the most popular (highest moveset_item_true_pick_rate)
+
+    # Act
     result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=3, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 3
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -295,11 +387,15 @@ def test_relevance_quartile_threshold_3():
 
 
 def test_relevance_quartile_threshold_4():
+    # Arrange
     builds = make_builds()
-    # Should select the most popular (highest moveset_item_true_pick_rate)
+
+    # Act
     result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=4, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 4
     assert result[0].pokemon == "Snorlax"
     assert result[1].pokemon == "Gengar"
@@ -308,9 +404,13 @@ def test_relevance_quartile_threshold_4():
 
 
 def test_relevance_quartile_invalid_threshold():
+    # Arrange
     builds = make_builds()
-    # Should select the most popular (highest moveset_item_true_pick_rate)
+
+    # Act
     result = RELEVANCE_STRATEGIES["quartile"].apply(
         builds, threshold=1.5, get_builds=lambda: builds
     )
+
+    # Assert
     assert len(result) == 0
