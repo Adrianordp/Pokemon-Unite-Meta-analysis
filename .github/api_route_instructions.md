@@ -20,7 +20,7 @@ Supports query parameters:
   - `id` (e.g., specific build ID).
   - `relevance` (e.g., `percentage`, `quartile`, `top_n`, `cumulative_coverage`; default: `percentage`).
   - `relevance_threshold` (e.g., minimum relevance score; default: dependent on `relevance`).
-  - `sort_by` (e.g., `win_rate`, `usage`, `relevance`; default: `win_rate`).
+  - `sort_by` (e.g., `moveset_item_win_rate`, `pokemon`; default: `moveset_item_win_rate`).
   - `sort_order` (e.g., `asc`, `desc`; default: dependent on `sort_by`).
   - `pokemon` (e.g., comma-separated list of specific Pokémon names; default: all Pokémon).
   - `role` (e.g., comma-separated list of specific roles; default: all roles).
@@ -49,7 +49,7 @@ Supports query parameters:
 - **GET `/relevance/{strategy}`**: Returns detailed information about a specific strategy.
 
 ### 6. `/sort_by`
-- **GET**: Returns sorted builds or strategies by specified criteria (e.g., `win_rate`, `usage`, `relevance`).
+- **GET**: Returns sorted builds or strategies by specified criteria.
 - **GET `/sort_by/{criteria}`**: Returns detailed information about the specified sorting criteria.
 
 ### 7. `/pokemon`
