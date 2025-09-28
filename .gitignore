@@ -2,6 +2,7 @@ __pycache__/
 .vscode/
 
 *.db
+!builds_sample.db
 *.log
 
 .coverage
