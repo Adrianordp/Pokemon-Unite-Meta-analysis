@@ -32,3 +32,8 @@ test = "pytest -v"
 lint = "ruff check ."
 run = "python -m src.pokemon_unite_meta_analysis"
 coverage = "coverage run -m pytest && coverage report -m && coverage html"
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
