@@ -19,7 +19,7 @@ from util.log import setup_custom_logger
 
 # import rich
 
-LOG = setup_custom_logger("manipulate_builds")
+LOG = setup_custom_logger("log_manipulate_builds")
 
 
 class ManipulateBuilds:

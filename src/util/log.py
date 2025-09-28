@@ -10,7 +10,7 @@ This module provides:
     these custom features.
 
 Usage:
-    logger = setup_custom_logger("my_module")
+    logger = setup_custom_logger("log_my_module")
     logger.info("This is a log message.")
 
 The log output includes timestamps, logger name, log level, module, line number,

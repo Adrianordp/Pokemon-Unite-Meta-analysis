@@ -8,7 +8,7 @@ from util.log import setup_custom_logger
 
 from .config import settings
 
-LOG = setup_custom_logger("api")
+LOG = setup_custom_logger("log_api")
 
 
 # Pydantic response model for Build

@@ -35,7 +35,7 @@ import sqlite3
 from entity.build import Build
 from util.log import setup_custom_logger
 
-LOG = setup_custom_logger("repository")
+LOG = setup_custom_logger("log_repository")
 
 
 class BuildRepository:
