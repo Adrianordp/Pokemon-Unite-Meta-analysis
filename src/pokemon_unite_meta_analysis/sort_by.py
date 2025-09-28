@@ -2,7 +2,6 @@
 Defines sorting criteria for builds based on different attributes.
 """
 
-
 from enum import Enum
 
 
