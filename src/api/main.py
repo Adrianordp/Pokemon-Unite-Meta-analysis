@@ -2,14 +2,16 @@ from typing import List, Optional
 
 from fastapi import FastAPI, Query
 
-from api.build_response import BuildResponse
+from api.custom_log import LOG
+from entity.build_response import BuildResponse
+from pokemon_unite_meta_analysis.filter_strategy import FILTER_STRATEGIES
+from pokemon_unite_meta_analysis.relevance_strategy import (
+    relevance_moveset_item_true_pr,
+)
+from pokemon_unite_meta_analysis.sort_strategy import SORT_STRATEGIES
 from repository.build_repository import BuildRepository
-from util.log import setup_custom_logger
 
 from .config import settings
-
-LOG = setup_custom_logger("log_api")
-
 
 app = FastAPI(title=settings.api_name, debug=settings.debug)
 
@@ -39,7 +41,7 @@ def get_builds(
     id: Optional[int] = Query(None),
     relevance: Optional[str] = Query("percentage_cutoff"),
     relevance_threshold: Optional[float] = Query(None),
-    sort_by: Optional[str] = Query("moveset_item_win_rate"),
+    sort_by: Optional[str] = Query("moveset_item_true_pick_rate"),
     sort_order: Optional[str] = Query("desc"),
     pokemon: Optional[str] = Query(None),
     role: Optional[str] = Query(None),
@@ -65,80 +67,48 @@ def get_builds(
     repo = BuildRepository()
     builds = repo.get_all_builds_by_table(repo.table_name)
 
-    # Filtering logic
+    # Filtering logic using strategies
     if id is not None:
         b = builds[id]
         return [BuildResponse(**b.__dict__)]
 
+    # Apply filter strategies
     if pokemon:
-        pokemon_list = [p.strip().lower() for p in pokemon.split(",")]
-        builds = [b for b in builds if b.pokemon.lower() in pokemon_list]
+        builds = FILTER_STRATEGIES["pokemon"].apply(builds, pokemon)
+
+    if not pokemon and ignore_pokemon:
+        builds = FILTER_STRATEGIES["ignore_pokemon"].apply(
+            builds, ignore_pokemon
+        )
 
     if role:
-        role_list = [r.strip().lower() for r in role.split(",")]
-        builds = [b for b in builds if b.role.lower() in role_list]
+        builds = FILTER_STRATEGIES["role"].apply(builds, role)
+
+    if not role and ignore_role:
+        builds = FILTER_STRATEGIES["ignore_role"].apply(builds, ignore_role)
 
     if item:
-        item_list = [i.strip().lower() for i in item.split(",")]
-        builds = [b for b in builds if b.item.lower() in item_list]
+        builds = FILTER_STRATEGIES["item"].apply(builds, item)
 
-    if ignore_pokemon:
-        ignore_pokemon_list = [
-            p.strip().lower() for p in ignore_pokemon.split(",")
-        ]
-        builds = [
-            b for b in builds if b.pokemon.lower() not in ignore_pokemon_list
-        ]
+    if not item and ignore_item:
+        builds = FILTER_STRATEGIES["ignore_item"].apply(builds, ignore_item)
 
-    if ignore_item:
-        ignore_item_list = [i.strip().lower() for i in ignore_item.split(",")]
-        builds = [b for b in builds if b.item.lower() not in ignore_item_list]
-
-    if ignore_role:
-        ignore_role_list = [r.strip().lower() for r in ignore_role.split(",")]
-        builds = [b for b in builds if b.role.lower() not in ignore_role_list]
-
-    if relevance == "percentage_cutoff" and relevance_threshold is None:
-        LOG.warning(
-            "Relevance is 'percentage_cutoff' but no relevance_threshold provided. Using default of 2.0."
+    # Relevance strategy
+    if relevance == "percentage_cutoff":
+        if relevance_threshold is None:
+            LOG.warning(
+                "Relevance is 'percentage_cutoff' but no relevance_threshold provided. Using default of 0.0."
+            )
+            relevance_threshold = 0.0
+        builds = relevance_moveset_item_true_pr(
+            builds, relevance_threshold, lambda: builds
         )
-        relevance_threshold = 2.0  # Default threshold for percentage_cutoff
+    # TODO: Add more relevance strategies as needed
 
-    # Relevance threshold filtering
-    if relevance_threshold is not None:
-        LOG.debug("Applying relevance threshold filtering")
+    # Apply sorting strategy
 
-        if relevance == "percentage_cutoff":
-            LOG.debug("Applying percentage_cutoff filtering")
-            builds = [
-                b
-                for b in builds
-                if b.moveset_item_true_pick_rate >= relevance_threshold
-            ]
-        # Add more relevance strategies as needed
-
-    # Sorting
     reverse = sort_order == "desc"
-    if sort_by == "win_rate":
-        builds = sorted(
-            builds, key=lambda b: b.pokemon_win_rate, reverse=reverse
-        )
-    elif sort_by == "moveset_win_rate":
-        builds = sorted(
-            builds, key=lambda b: b.moveset_win_rate, reverse=reverse
-        )
-    elif sort_by == "moveset_item_win_rate":
-        builds = sorted(
-            builds, key=lambda b: b.moveset_item_win_rate, reverse=reverse
-        )
-    elif sort_by == "usage":
-        builds = sorted(
-            builds, key=lambda b: b.pokemon_pick_rate, reverse=reverse
-        )
-    elif sort_by == "relevance":
-        builds = sorted(
-            builds, key=lambda b: b.moveset_true_pick_rate, reverse=reverse
-        )
+    builds = SORT_STRATEGIES[sort_by].apply(builds, reverse=reverse)
 
     # Convert to response model
     return [BuildResponse(**b.__dict__) for b in builds]
