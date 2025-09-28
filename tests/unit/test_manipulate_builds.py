@@ -3,7 +3,6 @@ from unittest.mock import MagicMock
 from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.manipulate_builds import (
     ManipulateBuilds,
-    Relevance,
     SortBy,
 )
 
@@ -49,7 +48,7 @@ def test_manipulate_builds_sort_and_json():
     result_json = manip.run(
         sort_by=SortBy.POKEMON_WIN_RATE,
         top_n=1,
-        relevance=Relevance.ANY,
+        relevance="any",
         print_result=False,
     )
 
@@ -71,11 +70,11 @@ def test_manipulate_builds_unsupported_relevance():
     try:
         manip.run(
             sort_by=SortBy.POKEMON_WIN_RATE,
-            relevance=FakeRelevance(),
+            relevance="invalid_relevance",
         )
     # Assert
     except ValueError as e:
-        assert "not supported" in str(e)
+        assert "Invalid relevance:" in str(e)
     else:
         assert False, "ValueError not raised"
 
