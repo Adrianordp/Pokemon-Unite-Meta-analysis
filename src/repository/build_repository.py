@@ -63,6 +63,17 @@ class BuildRepository:
 
         self.conn: sqlite3.Connection = conn
         self.cursor: sqlite3.Cursor = self.conn.cursor()
+
+        if table_name is None:
+            LOG.warning("No table name provided, defaulting to latest table")
+            table_names = self.get_table_names()
+
+            if table_names:
+                table_name = sorted(table_names)[-1]
+                LOG.info("Defaulting to latest table: %s", table_name)
+            else:
+                LOG.warning("No tables found in the database")
+
         self.table_name: str = table_name
 
     def set_table_name(self, table_name) -> None:
