@@ -1,9 +1,8 @@
 __pycache__/
 .vscode/
 
-.github/*.md
-
 *.db
+!sample_builds.db
 *.log
 
 .coverage
