@@ -32,3 +32,17 @@ test = "pytest -v"
 lint = "ruff check ."
 run = "python -m src.pokemon_unite_meta_analysis"
 coverage = "coverage run -m pytest && coverage report -m && coverage html"
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug",
+    "@abc.abstractmethod",
+    "class BuildResponse",
+]

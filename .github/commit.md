@@ -22,9 +22,7 @@ the provided code staged changes.
 
 **Length**: Keep the message under 50 characters if possible.
 
-**Single File**: Include the relative file path of the file. Example:
-`prefix[src/util/log.py]: message`.
+**Single File in Staged Changes**: Include the relative file path of the file. Example:
+`prefix[src/util/log.py]: message`. Consider only changes that are staged for commit.
 
-**Multiple Files**: Include dots in the path. Example: `prefix[...]: message`.
-
-**Staged Files**: Consider only files that are staged for commit.
+**Multiple Files in Staged Changes**: Include dots in the path. Example: `prefix[...]: message`. Consider only changes that are staged for commit.

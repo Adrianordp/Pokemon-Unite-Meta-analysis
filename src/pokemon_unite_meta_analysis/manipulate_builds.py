@@ -8,18 +8,13 @@ and retrieve builds based on various criteria.
 
 import json
 
-from entity.build import Build
-from pokemon_unite_meta_analysis.relevance_strategy import (
-    RELEVANCE_STRATEGIES,
-    Relevance,
-)
+from entity.build_response import BuildResponse
+from pokemon_unite_meta_analysis.custom_log import LOG
+from pokemon_unite_meta_analysis.relevance_strategy import RELEVANCE_STRATEGIES
 from pokemon_unite_meta_analysis.sort_by import SortBy
 from repository.build_repository import BuildRepository
-from util.log import setup_custom_logger
 
 # import rich
-
-LOG = setup_custom_logger("manipulate_builds")
 
 
 class ManipulateBuilds:
@@ -49,24 +44,27 @@ class ManipulateBuilds:
 
     def _most_relevant(
         self,
-        builds: list[Build],
-        relevance: Relevance,
+        builds: list[BuildResponse],
+        relevance: str,
         threshold: float,
         get_builds: callable,
-    ) -> list[Build]:
+    ) -> list[BuildResponse]:
         LOG.info("Getting n most relevant builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("relevance: %s", relevance)
         LOG.debug("threshold: %s", threshold)
 
-        strategy = RELEVANCE_STRATEGIES.get(relevance)
+        if relevance not in RELEVANCE_STRATEGIES:
+            raise ValueError(f"Invalid relevance: {relevance}")
 
-        if not strategy:
-            raise ValueError(f"Relevance {relevance} is not supported")
+        relevant_builds = RELEVANCE_STRATEGIES[relevance].apply(
+            builds, threshold, get_builds=get_builds
+        )
+        return relevant_builds
 
-        return strategy(builds, threshold, get_builds)
-
-    def _head(self, builds: list[Build], n: int = 0) -> list[Build]:
+    def _head(
+        self, builds: list[BuildResponse], n: int = 0
+    ) -> list[BuildResponse]:
         LOG.info("Getting head of builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("n: %s", n)
@@ -76,7 +74,9 @@ class ManipulateBuilds:
 
         return builds[:n]
 
-    def _sort(self, builds: list[Build], sort_by: SortBy) -> list[Build]:
+    def _sort(
+        self, builds: list[BuildResponse], sort_by: SortBy
+    ) -> list[BuildResponse]:
         LOG.info("Sorting builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("sort_by: %s", sort_by)
@@ -89,12 +89,12 @@ class ManipulateBuilds:
 
         return data
 
-    def _get_builds(self) -> list[Build]:
+    def _get_builds(self) -> list[BuildResponse]:
         LOG.info("Getting builds from table")
 
         return self.build_repository.get_all_builds_by_table(self.date)
 
-    def _return_builds_as_json(self, builds: list[Build]) -> list[dict]:
+    def _return_builds_as_json(self, builds: list[BuildResponse]) -> list[dict]:
         LOG.info("Returning builds as json")
         LOG.debug("builds: %s", builds)
 
@@ -127,7 +127,7 @@ class ManipulateBuilds:
         self,
         sort_by: SortBy,
         top_n: int = 0,
-        relevance: Relevance = Relevance.ANY,
+        relevance: str = "any",
         relevance_threshold: float = 0.0,
         print_result: bool = False,
     ) -> list[dict]:
@@ -137,8 +137,7 @@ class ManipulateBuilds:
         Args:
             sort_by (SortBy): Sort by
             top_n (int, optional): Top n. Defaults to 0.
-            relevance (Relevance, optional): Relevance. Defaults to
-                Relevance.ANY.
+            relevance (str, optional): Relevance. Defaults to "any".
             relevance_threshold (float, optional): Relevance threshold. Defaults
                 to 0.0.
             print_result (bool, optional): Print result. Defaults to False.
@@ -182,7 +181,7 @@ def main():
     manipulate_builds.run(
         SortBy.MOVESET_ITEM_WIN_RATE,
         50,
-        Relevance.MOVESET_ITEM_TRUE_PR,
+        "moveset_item_true_pr",
         2,
         True,
     )
