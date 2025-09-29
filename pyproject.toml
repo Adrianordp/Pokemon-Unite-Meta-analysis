@@ -37,3 +37,12 @@ coverage = "coverage run -m pytest && coverage report -m && coverage html"
 omit = [
     "tests/*",
 ]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug",
+    "@abc.abstractmethod",
+    "class BuildResponse",
+]
