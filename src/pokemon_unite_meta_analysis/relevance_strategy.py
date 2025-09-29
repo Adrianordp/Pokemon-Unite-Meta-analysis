@@ -2,10 +2,20 @@
 Defines relevance strategies for filtering builds based on different criteria.
 """
 
+from enum import Enum
 from typing import Callable, Protocol
 
 from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.custom_log import LOG
+
+
+# Enum for relevance strategies
+class Relevance(str, Enum):
+    ANY = "any"
+    PERCENTAGE = "percentage"
+    TOP_N = "top_n"
+    CUMULATIVE_COVERAGE = "cumulative_coverage"
+    QUARTILE = "quartile"
 
 
 class RelevanceStrategy(Protocol):
