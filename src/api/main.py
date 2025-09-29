@@ -1,14 +1,15 @@
 from typing import List, Optional
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 
 from api.custom_log import LOG
 from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.filter_strategy import FILTER_STRATEGIES
 from pokemon_unite_meta_analysis.relevance_strategy import (
     RELEVANCE_STRATEGIES,
+    Relevance,
 )
-from pokemon_unite_meta_analysis.sort_strategy import SORT_STRATEGIES
+from pokemon_unite_meta_analysis.sort_strategy import SORT_STRATEGIES, SortBy
 from repository.build_repository import BuildRepository
 
 from .config import settings
@@ -34,21 +35,39 @@ def health_check():
     return {"status": "ok"}
 
 
-# /builds endpoint with all query parameters
-@app.get("/builds", response_model=List[BuildResponse])
+# /builds endpoint with improved validation and error handling
+@app.get(
+    "/builds",
+    response_model=List[BuildResponse],
+    summary="Retrieve builds with filtering, sorting, and relevance options",
+)
 def get_builds(
-    week: Optional[int] = Query(None),
-    id: Optional[int] = Query(None),
-    relevance: Optional[str] = Query("percentage"),
-    relevance_threshold: Optional[float] = Query(None),
-    sort_by: Optional[str] = Query("moveset_item_true_pick_rate"),
-    sort_order: Optional[str] = Query("desc"),
-    pokemon: Optional[str] = Query(None),
-    role: Optional[str] = Query(None),
-    item: Optional[str] = Query(None),
-    ignore_pokemon: Optional[str] = Query(None),
-    ignore_item: Optional[str] = Query(None),
-    ignore_role: Optional[str] = Query(None),
+    week: Optional[int] = Query(
+        None, description="Week number for filtering builds"
+    ),
+    id: Optional[int] = Query(None, description="Build ID for direct lookup"),
+    relevance: Optional[str] = Query(
+        Relevance.ANY.value,
+        description="Relevance strategy (any, moveset_item_true_pr, position_of_popularity)",
+    ),
+    relevance_threshold: Optional[float] = Query(
+        0.0, description="Threshold for relevance filtering"
+    ),
+    sort_by: Optional[str] = Query(
+        SortBy.MOVESET_ITEM_TRUE_PICK_RATE.value, description="Field to sort by"
+    ),
+    sort_order: Optional[str] = Query(
+        "desc", description="Sort order: asc or desc"
+    ),
+    pokemon: Optional[str] = Query(None, description="Filter by Pokémon name"),
+    role: Optional[str] = Query(None, description="Filter by role"),
+    item: Optional[str] = Query(None, description="Filter by item"),
+    ignore_pokemon: Optional[str] = Query(
+        None, description="Exclude Pokémon name"
+    ),
+    ignore_item: Optional[str] = Query(None, description="Exclude item"),
+    ignore_role: Optional[str] = Query(None, description="Exclude role"),
+    top_n: Optional[int] = Query(None, description="Limit to top N results"),
 ):
     LOG.info("get_builds")
     LOG.debug("week: %s", week)
@@ -63,52 +82,64 @@ def get_builds(
     LOG.debug("ignore_pokemon: %s", ignore_pokemon)
     LOG.debug("ignore_item: %s", ignore_item)
     LOG.debug("ignore_role: %s", ignore_role)
+    LOG.debug("top_n: %s", top_n)
 
     repo = BuildRepository()
     all_builds = repo.get_all_builds_by_table(repo.table_name)
     builds = all_builds.copy()
 
-    # Filtering logic using strategies
+    # Direct ID lookup
     if id is not None:
+        if id < 0 or id >= len(builds):
+            raise HTTPException(status_code=404, detail="Build ID not found")
         b = builds[id]
         return [BuildResponse(**b.__dict__)]
 
-    # Apply relevance strategy
-    if relevance in RELEVANCE_STRATEGIES:
-        builds = RELEVANCE_STRATEGIES[relevance].apply(
-            builds, relevance_threshold, lambda: all_builds
+    # Validate and map relevance
+    try:
+        relevance_enum = Relevance(relevance)
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail=f"Invalid relevance strategy: {relevance}"
         )
-    else:
-        LOG.error("Invalid relevance strategy: %s", relevance)
+
+    # Apply relevance strategy
+    builds = RELEVANCE_STRATEGIES[relevance_enum].apply(
+        builds, relevance_threshold, lambda: all_builds
+    )
 
     # Apply filter strategies
     if pokemon:
         builds = FILTER_STRATEGIES["pokemon"].apply(builds, pokemon)
-
-    if not pokemon and ignore_pokemon:
+    elif ignore_pokemon:
         builds = FILTER_STRATEGIES["ignore_pokemon"].apply(
             builds, ignore_pokemon
         )
 
     if role:
         builds = FILTER_STRATEGIES["role"].apply(builds, role)
-
-    if not role and ignore_role:
+    elif ignore_role:
         builds = FILTER_STRATEGIES["ignore_role"].apply(builds, ignore_role)
 
     if item:
         builds = FILTER_STRATEGIES["item"].apply(builds, item)
-
-    if not item and ignore_item:
+    elif ignore_item:
         builds = FILTER_STRATEGIES["ignore_item"].apply(builds, ignore_item)
 
-    # Apply sorting strategy
+    # Validate and map sort_by
+    try:
+        sort_by_enum = SortBy(sort_by)
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail=f"Invalid sort_by field: {sort_by}"
+        )
 
     reverse = sort_order == "desc"
-    if sort_by in SORT_STRATEGIES:
-        builds = SORT_STRATEGIES[sort_by].apply(builds, reverse=reverse)
-    else:
-        LOG.error("Invalid sort_by strategy: %s", sort_by)
+    builds = SORT_STRATEGIES[sort_by_enum.value].apply(builds, reverse=reverse)
+
+    # Limit to top_n results if specified
+    if top_n is not None and top_n > 0:
+        builds = builds[:top_n]
 
     # Convert to response model
     return [BuildResponse(**b.__dict__) for b in builds]

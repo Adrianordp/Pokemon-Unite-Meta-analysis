@@ -291,10 +291,10 @@ class QuartileRelevanceStrategy:
         return []  # Fallback, should not reach here
 
 
-RELEVANCE_STRATEGIES: dict[str, RelevanceStrategy] = {
-    "any": AnyRelevanceStrategy(),
-    "percentage": PercentageRelevanceStrategy(),
-    "top_n": TopNRelevanceStrategy(),
-    "cumulative_coverage": CumulativeCoverageRelevanceStrategy(),
-    "quartile": QuartileRelevanceStrategy(),
+RELEVANCE_STRATEGIES: dict[Relevance, RelevanceStrategy] = {
+    Relevance.ANY: AnyRelevanceStrategy(),
+    Relevance.PERCENTAGE: PercentageRelevanceStrategy(),
+    Relevance.TOP_N: TopNRelevanceStrategy(),
+    Relevance.CUMULATIVE_COVERAGE: CumulativeCoverageRelevanceStrategy(),
+    Relevance.QUARTILE: QuartileRelevanceStrategy(),
 }

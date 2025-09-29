@@ -161,15 +161,15 @@ class MovesetItemTruePickRateSortStrategy(SortStrategy):
 
 
 SORT_STRATEGIES = {
-    "pokemon": PokemonSortStrategy(),
-    "role": RoleSortStrategy(),
-    "pokemon_win_rate": PokemonWinRateSortStrategy(),
-    "pokemon_pick_rate": PokemonPickRateSortStrategy(),
-    "moveset_win_rate": MovesetWinRateSortStrategy(),
-    "moveset_pick_rate": MovesetPickRateSortStrategy(),
-    "moveset_true_pick_rate": MovesetTruePickRateSortStrategy(),
-    "item": ItemSortStrategy(),
-    "moveset_item_win_rate": MovesetItemWinRateSortStrategy(),
-    "moveset_item_pick_rate": MovesetItemPickRateSortStrategy(),
-    "moveset_item_true_pick_rate": MovesetItemTruePickRateSortStrategy(),
+    SortBy.POKEMON: PokemonSortStrategy(),
+    SortBy.ROLE: RoleSortStrategy(),
+    SortBy.POKEMON_WIN_RATE: PokemonWinRateSortStrategy(),
+    SortBy.POKEMON_PICK_RATE: PokemonPickRateSortStrategy(),
+    SortBy.MOVESET_WIN_RATE: MovesetWinRateSortStrategy(),
+    SortBy.MOVESET_PICK_RATE: MovesetPickRateSortStrategy(),
+    SortBy.MOVESET_TRUE_PICK_RATE: MovesetTruePickRateSortStrategy(),
+    SortBy.ITEM: ItemSortStrategy(),
+    SortBy.MOVESET_ITEM_WIN_RATE: MovesetItemWinRateSortStrategy(),
+    SortBy.MOVESET_ITEM_PICK_RATE: MovesetItemPickRateSortStrategy(),
+    SortBy.MOVESET_ITEM_TRUE_PICK_RATE: MovesetItemTruePickRateSortStrategy(),
 }

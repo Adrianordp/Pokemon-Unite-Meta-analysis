@@ -163,12 +163,7 @@ def test_get_builds_invalid_strategy(monkeypatch):
     response = client.get("/builds?sort_by=not_a_strategy")
 
     # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) == 1
-    assert data[0]["pokemon"] == "Lucario"
-    assert data[0]["role"] == "All-Rounder"
+    assert response.status_code == 400
 
 
 def test_get_builds_invalid_relevance(monkeypatch, caplog):
@@ -204,16 +199,11 @@ def test_get_builds_invalid_relevance(monkeypatch, caplog):
     monkeypatch.setattr(
         "repository.build_repository.BuildRepository.__init__", build_repo_init
     )
-    with caplog.at_level("ERROR"):
-        # Act
-        response = client.get("/builds?relevance=not_a_strategy")
+    # Act
+    response = client.get("/builds?relevance=not_a_strategy")
 
-        # Assert
-        assert response.status_code == 200
-        assert "Invalid relevance strategy" in caplog.text
-        data = response.json()
-        assert isinstance(data, list)
-        assert len(data) == 1
+    # Assert
+    assert response.status_code == 400
 
 
 def test_get_builds_filter_pokemon(monkeypatch):
