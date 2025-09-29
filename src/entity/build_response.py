@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 # Pydantic response model for Build
-class BuildResponse(BaseModel):  # pragma: no cover
+class BuildResponse(BaseModel):
     """
     Pydantic response model for Build
 
