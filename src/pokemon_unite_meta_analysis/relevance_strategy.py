@@ -2,10 +2,20 @@
 Defines relevance strategies for filtering builds based on different criteria.
 """
 
+from enum import Enum
 from typing import Callable, Protocol
 
 from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.custom_log import LOG
+
+
+# Enum for relevance strategies
+class Relevance(str, Enum):
+    ANY = "any"
+    PERCENTAGE = "percentage"
+    TOP_N = "top_n"
+    CUMULATIVE_COVERAGE = "cumulative_coverage"
+    QUARTILE = "quartile"
 
 
 class RelevanceStrategy(Protocol):
@@ -281,10 +291,10 @@ class QuartileRelevanceStrategy:
         return []  # Fallback, should not reach here
 
 
-RELEVANCE_STRATEGIES: dict[str, RelevanceStrategy] = {
-    "any": AnyRelevanceStrategy(),
-    "percentage": PercentageRelevanceStrategy(),
-    "top_n": TopNRelevanceStrategy(),
-    "cumulative_coverage": CumulativeCoverageRelevanceStrategy(),
-    "quartile": QuartileRelevanceStrategy(),
+RELEVANCE_STRATEGIES: dict[Relevance, RelevanceStrategy] = {
+    Relevance.ANY: AnyRelevanceStrategy(),
+    Relevance.PERCENTAGE: PercentageRelevanceStrategy(),
+    Relevance.TOP_N: TopNRelevanceStrategy(),
+    Relevance.CUMULATIVE_COVERAGE: CumulativeCoverageRelevanceStrategy(),
+    Relevance.QUARTILE: QuartileRelevanceStrategy(),
 }

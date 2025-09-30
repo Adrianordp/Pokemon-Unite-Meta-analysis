@@ -67,6 +67,9 @@ Supports query parameters:
 ### 10. `/logs`
 - **GET**: Returns logs or summaries of analysis operations (if needed for frontend display).
 
+### 11. `/docs`
+- **GET**: Swagger UI for API documentation.
+
 ---
 
 **Implementation Notes:**

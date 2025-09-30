@@ -13,11 +13,11 @@
 - [x] Write integration tests for server startup and health check
 
 ### Build Retrieval, Filtering & Sorting Endpoints (`feature/builds-endpoint`)
-- [ ] Create branch `feature/builds-endpoint`
-- [ ] Implement `/builds` endpoint with all query parameters
-- [ ] Implement filtering, sorting, and relevance logic
-- [ ] Write integration tests for `/builds` endpoint
-- [ ] Document API request/response models (Pydantic)
+- [x] Create branch `feature/builds-endpoint`
+- [x] Implement `/builds` endpoint with all query parameters
+- [x] Implement filtering, sorting, and relevance logic
+- [x] Write integration tests for `/builds` endpoint
+- [x] Document API request/response models (Pydantic)
 
 ### Champion Data Endpoints (`feature/champion-endpoints`)
 - [ ] Create branch `feature/champion-endpoints`
