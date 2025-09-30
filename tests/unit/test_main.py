@@ -3,7 +3,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from api.builds_query_params import BuildsQueryParams
-from api.main import app
+from api.main import app, get_builds
 from entity.build_response import BuildResponse
 
 client = TestClient(app)
@@ -56,16 +56,18 @@ class DummyBuild:
 
 @patch("src.api.main.BuildRepository")
 def test_top_n_limit(mock_repo):
-    # Prepare 5 dummy builds
+    # Arrange
     dummy_builds = [DummyBuild() for _ in range(5)]
     instance = mock_repo.return_value
     instance.get_all_builds_by_table.return_value = dummy_builds
     instance.table_name = "dummy"
 
     params = BuildsQueryParams(top_n=2)
-    from src.api.main import get_builds
 
+    # Act
     result = get_builds(params)
+
+    # Assert
     assert isinstance(result, list)
     assert len(result) == 2
     for build in result:
