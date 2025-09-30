@@ -2,9 +2,9 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-from api.builds_query_params import BuildsQueryParams
 from api.main import app, get_builds
 from entity.build_response import BuildResponse
+from entity.builds_query_params import BuildsQueryParams
 
 client = TestClient(app)
 

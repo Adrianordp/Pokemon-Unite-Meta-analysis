@@ -2,8 +2,10 @@ from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException
 
+from api.config import settings
 from api.custom_log import LOG
 from entity.build_response import BuildResponse
+from entity.builds_query_params import BuildsQueryParams
 from pokemon_unite_meta_analysis.filter_strategy import FILTER_STRATEGIES
 from pokemon_unite_meta_analysis.relevance_strategy import (
     RELEVANCE_STRATEGIES,
@@ -11,9 +13,6 @@ from pokemon_unite_meta_analysis.relevance_strategy import (
 )
 from pokemon_unite_meta_analysis.sort_strategy import SORT_STRATEGIES, SortBy
 from repository.build_repository import BuildRepository
-
-from .builds_query_params import BuildsQueryParams
-from .config import settings
 
 app = FastAPI(title=settings.api_name, debug=settings.debug)
 
