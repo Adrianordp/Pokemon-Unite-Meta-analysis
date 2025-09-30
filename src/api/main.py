@@ -80,9 +80,12 @@ Returns a list of Pokémon Unite builds, with options for filtering, sorting, an
     - `EjectButton`
     - `XAttack`
     - `XSpeed`
-    - `Purify`
-    - `Gear`
-    - `Ganrao`
+    - `Tail`
+    - `ShedinjaDoll`
+    - `Purify` (full-heal)
+    - `Gear` (slow-smoke)
+    - `Ganrao` (goal getter)
+    - `???` (goal hacker)
 - `ignore_pokemon` (str, optional): Exclude Pokémon name.
 - `ignore_item` (str, optional): Exclude item.
 - `ignore_role` (str, optional): Exclude role.
