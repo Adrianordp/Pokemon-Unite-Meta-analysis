@@ -7,6 +7,25 @@ from pokemon_unite_meta_analysis.sort_strategy import SortBy
 
 
 class BuildsQueryParams(BaseModel):
+    """
+    Query parameters for the /builds endpoint.
+
+    Attributes:
+        week (Optional[int]): Week number for filtering builds.
+        id (Optional[int]): Build ID for direct lookup.
+        relevance (Optional[str]): Relevance strategy (any, moveset_item_true_pr, position_of_popularity).
+        relevance_threshold (Optional[float]): Threshold for relevance filtering.
+        sort_by (Optional[str]): Field to sort by.
+        sort_order (Optional[str]): Sort order: asc or desc.
+        pokemon (Optional[str]): Filter by Pokémon name.
+        role (Optional[str]): Filter by role.
+        item (Optional[str]): Filter by item.
+        ignore_pokemon (Optional[str]): Exclude Pokémon name.
+        ignore_item (Optional[str]): Exclude item.
+        ignore_role (Optional[str]): Exclude role.
+        top_n (Optional[int]): Limit to top N results.
+    """
+
     week: Optional[int] = Field(
         None, description="Week number for filtering builds"
     )
