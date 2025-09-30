@@ -40,6 +40,27 @@ def health_check():
     "/builds",
     response_model=List[BuildResponse],
     summary="Retrieve builds with filtering, sorting, and relevance options",
+    description="""
+Returns a list of Pokémon Unite builds, with options for filtering, sorting, and relevance strategies.
+    
+**Query Parameters:**
+- `week` (int, optional): Week number for filtering builds.
+- `id` (int, optional): Build ID for direct lookup.
+- `relevance` (str, optional): Relevance strategy (`any`, `percentage`, `top_n`, `cumulative_coverage`, `quartile`).
+- `relevance_threshold` (float, optional): Threshold for relevance filtering.
+- `sort_by` (str, optional): Field to sort by. Options: `pokemon`, `role`, `pokemon_win_rate`, `pokemon_pick_rate`, `moveset_win_rate`, `moveset_pick_rate`, `moveset_true_pick_rate`, `item`, `moveset_item_win_rate`, `moveset_item_pick_rate`, `moveset_item_true_pick_rate`.
+- `sort_order` (str, optional): Sort order (`asc` or `desc`).
+- `pokemon` (str, optional): Filter by Pokémon name.
+- `role` (str, optional): Filter by role.
+- `item` (str, optional): Filter by item.
+- `ignore_pokemon` (str, optional): Exclude Pokémon name.
+- `ignore_item` (str, optional): Exclude item.
+- `ignore_role` (str, optional): Exclude role.
+- `top_n` (int, optional): Limit to top N results.
+
+**Response:**
+- List of builds, each with Pokémon, role, win/pick rates, moves, item, and more. See `BuildResponse` model for details.
+    """,
 )
 def get_builds(params: BuildsQueryParams = Depends()):
     LOG.info("get_builds")
