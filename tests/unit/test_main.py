@@ -1,6 +1,10 @@
+from unittest.mock import patch
+
 from fastapi.testclient import TestClient
 
 from api.main import app
+from entity.build_response import BuildResponse
+from src.api.builds_query_params import BuildsQueryParams
 
 client = TestClient(app)
 
@@ -31,6 +35,41 @@ def test_health_check():
 # /builds endpoint tests
 # These tests assume BuildRepository and strategies are working and database is populated.
 # For real unit tests, mocking BuildRepository is recommended.
+
+
+class DummyBuild:
+    def __init__(self):
+        self.pokemon = "Pikachu"
+        self.role = "Attacker"
+        self.pokemon_win_rate = 55.0
+        self.pokemon_pick_rate = 20.0
+        self.move_1 = "Thunderbolt"
+        self.move_2 = "Volt Tackle"
+        self.moveset_win_rate = 52.0
+        self.moveset_pick_rate = 18.0
+        self.moveset_true_pick_rate = 17.0
+        self.item = "Wise Glasses"
+        self.moveset_item_win_rate = 53.0
+        self.moveset_item_pick_rate = 15.0
+        self.moveset_item_true_pick_rate = 14.0
+
+
+@patch("src.api.main.BuildRepository")
+def test_top_n_limit(mock_repo):
+    # Prepare 5 dummy builds
+    dummy_builds = [DummyBuild() for _ in range(5)]
+    instance = mock_repo.return_value
+    instance.get_all_builds_by_table.return_value = dummy_builds
+    instance.table_name = "dummy"
+
+    params = BuildsQueryParams(top_n=2)
+    from src.api.main import get_builds
+
+    result = get_builds(params)
+    assert isinstance(result, list)
+    assert len(result) == 2
+    for build in result:
+        assert isinstance(build, BuildResponse)
 
 
 def test_get_builds_default(monkeypatch):
