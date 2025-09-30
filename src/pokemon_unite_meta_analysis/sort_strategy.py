@@ -1,23 +1,9 @@
 # src/pokemon_unite_meta_analysis/sort_by.py
-from enum import Enum
 from typing import List
 
 from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.custom_log import LOG
-
-
-class SortBy(str, Enum):
-    POKEMON = "pokemon"
-    ROLE = "role"
-    POKEMON_WIN_RATE = "pokemon_win_rate"
-    POKEMON_PICK_RATE = "pokemon_pick_rate"
-    MOVESET_WIN_RATE = "moveset_win_rate"
-    MOVESET_PICK_RATE = "moveset_pick_rate"
-    MOVESET_TRUE_PICK_RATE = "moveset_true_pick_rate"
-    ITEM = "item"
-    MOVESET_ITEM_WIN_RATE = "moveset_item_win_rate"
-    MOVESET_ITEM_PICK_RATE = "moveset_item_pick_rate"
-    MOVESET_ITEM_TRUE_PICK_RATE = "moveset_item_true_pick_rate"
+from pokemon_unite_meta_analysis.sort_by import SortBy
 
 
 class SortStrategy:
