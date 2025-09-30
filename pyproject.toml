@@ -45,5 +45,4 @@ exclude_lines = [
     "def __repr__",
     "if self.debug",
     "@abc.abstractmethod",
-    "class BuildResponse",
 ]
