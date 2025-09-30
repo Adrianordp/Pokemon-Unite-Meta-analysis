@@ -16,8 +16,8 @@
 - [x] Create branch `feature/builds-endpoint`
 - [x] Implement `/builds` endpoint with all query parameters
 - [x] Implement filtering, sorting, and relevance logic
-- [ ] Write integration tests for `/builds` endpoint
-- [ ] Document API request/response models (Pydantic)
+- [x] Write integration tests for `/builds` endpoint
+- [x] Document API request/response models (Pydantic)
 
 ### Champion Data Endpoints (`feature/champion-endpoints`)
 - [ ] Create branch `feature/champion-endpoints`
