@@ -54,7 +54,7 @@ class DummyBuild:
         self.moveset_item_true_pick_rate = 14.0
 
 
-@patch("src.api.main.BuildRepository")
+@patch("api.main.BuildRepository")
 def test_top_n_limit(mock_repo):
     # Arrange
     dummy_builds = [DummyBuild() for _ in range(5)]
