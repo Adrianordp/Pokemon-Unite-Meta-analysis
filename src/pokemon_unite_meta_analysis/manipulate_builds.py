@@ -9,9 +9,9 @@ and retrieve builds based on various criteria.
 import json
 
 from entity.build_response import BuildResponse
+from entity.sort_by import SortBy
 from pokemon_unite_meta_analysis.custom_log import LOG
 from pokemon_unite_meta_analysis.relevance_strategy import RELEVANCE_STRATEGIES
-from pokemon_unite_meta_analysis.sort_by import SortBy
 from repository.build_repository import BuildRepository
 
 # import rich
