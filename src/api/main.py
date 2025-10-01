@@ -2,8 +2,10 @@ from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException
 
+from api.config import settings
 from api.custom_log import LOG
 from entity.build_response import BuildResponse
+from entity.builds_query_params import BuildsQueryParams
 from pokemon_unite_meta_analysis.filter_strategy import FILTER_STRATEGIES
 from pokemon_unite_meta_analysis.relevance_strategy import (
     RELEVANCE_STRATEGIES,
@@ -12,13 +14,23 @@ from pokemon_unite_meta_analysis.relevance_strategy import (
 from pokemon_unite_meta_analysis.sort_strategy import SORT_STRATEGIES, SortBy
 from repository.build_repository import BuildRepository
 
-from .builds_query_params import BuildsQueryParams
-from .config import settings
-
 app = FastAPI(title=settings.api_name, debug=settings.debug)
 
 
-@app.get("/")
+@app.get(
+    "/",
+    summary="API root endpoint",
+    description="""
+Returns a welcome message and basic API metadata (name, debug status, host, port).
+Useful for confirming the API is running and retrieving configuration info.
+
+**Response:**
+- `message` (str): Welcome message with API name.
+- `debug` (bool): Debug mode status.
+- `host` (str): Host address.
+- `port` (int): Port number.
+    """,
+)
 def read_root():
     LOG.info("read_root")
     return {
@@ -30,7 +42,16 @@ def read_root():
 
 
 # Health check endpoint
-@app.get("/health")
+@app.get(
+    "/health",
+    summary="Health check endpoint",
+    description="""
+    Returns the health status of the API. Useful for monitoring and readiness/liveness probes.
+    
+**Response:**
+- `status` (str): Always returns `ok` if the API is running.
+    """,
+)
 def health_check():
     LOG.info("health_check")
     return {"status": "ok"}
@@ -41,6 +62,59 @@ def health_check():
     "/builds",
     response_model=List[BuildResponse],
     summary="Retrieve builds with filtering, sorting, and relevance options",
+    description="""
+Returns a list of Pokémon Unite builds, with options for filtering, sorting, and relevance strategies.
+    
+**Query Parameters:**
+- `week` (int, optional): Week number for filtering builds.
+- `id` (int, optional): Build ID for direct lookup.
+- `relevance` (str, optional): Relevance strategy:
+    - `any`
+    - `percentage`
+    - `top_n`
+    - `cumulative_coverage`
+    - `quartile`
+- `relevance_threshold` (float, optional): Threshold for relevance filtering.
+- `sort_by` (str, optional): Field to sort by. Options:
+    - `pokemon`
+    - `role`
+    - `pokemon_win_rate`
+    - `pokemon_pick_rate`
+    - `moveset_win_rate`
+    - `moveset_pick_rate`
+    - `moveset_true_pick_rate`
+    - `item`
+    - `moveset_item_win_rate`
+    - `moveset_item_pick_rate`
+    - `moveset_item_true_pick_rate`
+- `sort_order` (str, optional): Sort order:
+    - `asc`
+    - `desc`
+- `pokemon` (str, optional): Filter by Pokémon name.
+- `role` (str, optional): Filter by role. Options:
+    - `All-Rounder`
+    - `Attacker`
+    - `Defender`
+    - `Supporter`
+    - `Speedster`
+- `item` (str, optional): Filter by item. Options:
+    - `Potion`
+    - `EjectButton`
+    - `XAttack`
+    - `XSpeed`
+    - `Tail`
+    - `ShedinjaDoll`
+    - `Purify` (full-heal)
+    - `Gear` (slow-smoke)
+    - `Ganrao` (goal getter)
+    - `???` (goal hacker)
+- `ignore_pokemon` (str, optional): Exclude Pokémon name.
+- `ignore_item` (str, optional): Exclude item.
+- `ignore_role` (str, optional): Exclude role.
+
+**Response:**
+- List of builds, each with Pokémon, role, win/pick rates, moves, item, and more. See `BuildResponse` model for details.
+    """,
 )
 def get_builds(params: BuildsQueryParams = Depends()):
     LOG.info("get_builds")

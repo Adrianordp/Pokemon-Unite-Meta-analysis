@@ -19,6 +19,13 @@
 - [x] Write integration tests for `/builds` endpoint
 - [x] Document API request/response models (Pydantic)
 
+### Swagger/OpenAPI Documentation (`feature/setup-swagger-documentation`)
+- [x] Create branch `feature/setup-swagger-documentation`
+- [ ] Implement Swagger/OpenAPI documentation for all endpoints
+- [ ] Ensure docs are accessible at `/docs` and `/redoc`
+- [ ] Write tests to verify documentation generation
+- [ ] Document API usage examples in README
+
 ### Champion Data Endpoints (`feature/champion-endpoints`)
 - [ ] Create branch `feature/champion-endpoints`
 - [ ] Implement `/pokemon`, `/pokemon/{name}` endpoints
