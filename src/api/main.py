@@ -17,7 +17,20 @@ from repository.build_repository import BuildRepository
 app = FastAPI(title=settings.api_name, debug=settings.debug)
 
 
-@app.get("/")
+@app.get(
+    "/",
+    summary="API root endpoint",
+    description="""
+Returns a welcome message and basic API metadata (name, debug status, host, port).
+Useful for confirming the API is running and retrieving configuration info.
+
+**Response:**
+- `message` (str): Welcome message with API name.
+- `debug` (bool): Debug mode status.
+- `host` (str): Host address.
+- `port` (int): Port number.
+    """,
+)
 def read_root():
     LOG.info("read_root")
     return {
