@@ -29,7 +29,16 @@ def read_root():
 
 
 # Health check endpoint
-@app.get("/health")
+@app.get(
+    "/health",
+    summary="Health check endpoint",
+    description="""
+    Returns the health status of the API. Useful for monitoring and readiness/liveness probes.
+    
+**Response:**
+- `status` (str): Always returns `ok` if the API is running.
+    """,
+)
 def health_check():
     LOG.info("health_check")
     return {"status": "ok"}
