@@ -1,10 +1,9 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
+from conftest import create_build_response
 from fastapi.testclient import TestClient
 
-from api.main import app, get_builds
-from entity.build_response import BuildResponse
-from entity.builds_query_params import BuildsQueryParams
+from api.main import app
 
 client = TestClient(app)
 
@@ -32,477 +31,302 @@ def test_health_check():
     assert response.json() == {"status": "ok"}
 
 
-# /builds endpoint tests
-# These tests assume BuildRepository and strategies are working and database is populated.
-# For real unit tests, mocking BuildRepository is recommended.
-
-
-class DummyBuild:
-    def __init__(self):
-        self.pokemon = "Pikachu"
-        self.role = "Attacker"
-        self.pokemon_win_rate = 55.0
-        self.pokemon_pick_rate = 20.0
-        self.move_1 = "Thunderbolt"
-        self.move_2 = "Volt Tackle"
-        self.moveset_win_rate = 52.0
-        self.moveset_pick_rate = 18.0
-        self.moveset_true_pick_rate = 17.0
-        self.item = "Wise Glasses"
-        self.moveset_item_win_rate = 53.0
-        self.moveset_item_pick_rate = 15.0
-        self.moveset_item_true_pick_rate = 14.0
-
-
-@patch("api.main.BuildRepository")
-def test_top_n_limit(mock_repo):
+def test_get_weeks():
     # Arrange
-    dummy_builds = [DummyBuild() for _ in range(5)]
-    instance = mock_repo.return_value
-    instance.get_all_builds_by_table.return_value = dummy_builds
-    instance.table_name = "dummy"
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [
+            "Y2025m09d28",
+            "Y2025m10d05",
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    params = BuildsQueryParams(top_n=2)
+        # Act
+        response = client.get("/weeks")
 
-    # Act
-    result = get_builds(params)
-
-    # Assert
-    assert isinstance(result, list)
-    assert len(result) == 2
-    for build in result:
-        assert isinstance(build, BuildResponse)
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert "Y2025m09d28" in data
+        assert "Y2025m10d05" in data
 
 
-def test_get_builds_default(monkeypatch):
+def test_get_builds_default(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Pikachu"
-            self.role = "Attacker"
-            self.pokemon_win_rate = 55.0
-            self.pokemon_pick_rate = 20.0
-            self.move_1 = "Thunderbolt"
-            self.move_2 = "Volt Tackle"
-            self.moveset_win_rate = 52.0
-            self.moveset_pick_rate = 18.0
-            self.moveset_true_pick_rate = 17.0
-            self.item = "Wise Glasses"
-            self.moveset_item_win_rate = 53.0
-            self.moveset_item_pick_rate = 15.0
-            self.moveset_item_true_pick_rate = 14.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
+            create_build_response(id=2, week=sample_week, pokemon="Snorlax"),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0), DummyBuild(1)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-
-    # Act
-    response = client.get("/builds")
-
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) == 2
-    assert data[0]["pokemon"] == "Pikachu"
-    assert data[0]["role"] == "Attacker"
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 2
+        assert data[0]["pokemon"] == "Pikachu"
+        assert data[1]["pokemon"] == "Snorlax"
 
 
-def test_get_builds_by_id(monkeypatch):
+def test_get_builds_by_id(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Snorlax"
-            self.role = "Defender"
-            self.pokemon_win_rate = 50.0
-            self.pokemon_pick_rate = 15.0
-            self.move_1 = "Tackle"
-            self.move_2 = "Block"
-            self.moveset_win_rate = 48.0
-            self.moveset_pick_rate = 13.0
-            self.moveset_true_pick_rate = 12.0
-            self.item = "Leftovers"
-            self.moveset_item_win_rate = 49.0
-            self.moveset_item_pick_rate = 10.0
-            self.moveset_item_true_pick_rate = 9.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
+            create_build_response(id=2, week=sample_week, pokemon="Snorlax"),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0), DummyBuild(1)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds?id=1")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-
-    # Act
-    response = client.get("/builds?id=1")
-
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) == 1
-    assert data[0]["pokemon"] == "Snorlax"
-    assert data[0]["role"] == "Defender"
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 1
+        assert data[0]["pokemon"] == "Snorlax"
 
 
-def test_get_builds_invalid_strategy(monkeypatch):
+def test_get_builds_by_week(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Lucario"
-            self.role = "All-Rounder"
-            self.pokemon_win_rate = 60.0
-            self.pokemon_pick_rate = 25.0
-            self.move_1 = "Power-Up Punch"
-            self.move_2 = "Bone Rush"
-            self.moveset_win_rate = 58.0
-            self.moveset_pick_rate = 22.0
-            self.moveset_true_pick_rate = 21.0
-            self.item = "Muscle Band"
-            self.moveset_item_win_rate = 59.0
-            self.moveset_item_pick_rate = 20.0
-            self.moveset_item_true_pick_rate = 19.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [
+            sample_week,
+            "Y2025m10d05",
+        ]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get(f"/builds?week={sample_week}")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-
-    # Act
-    response = client.get("/builds?sort_by=not_a_strategy")
-
-    # Assert
-    assert response.status_code == 400
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 1
+        assert data[0]["week"] == sample_week
 
 
-def test_get_builds_invalid_relevance(monkeypatch, caplog):
+def test_get_builds_invalid_week(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Pikachu"
-            self.role = "Attacker"
-            self.pokemon_win_rate = 55.0
-            self.pokemon_pick_rate = 20.0
-            self.move_1 = "Thunderbolt"
-            self.move_2 = "Volt Tackle"
-            self.moveset_win_rate = 52.0
-            self.moveset_pick_rate = 18.0
-            self.moveset_true_pick_rate = 17.0
-            self.item = "Wise Glasses"
-            self.moveset_item_win_rate = 53.0
-            self.moveset_item_pick_rate = 15.0
-            self.moveset_item_true_pick_rate = 14.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds?week=Y2099m01d01")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-    # Act
-    response = client.get("/builds?relevance=not_a_strategy")
-
-    # Assert
-    assert response.status_code == 400
+        # Assert
+        assert response.status_code == 400
+        assert "Invalid week" in response.json()["detail"]
 
 
-def test_get_builds_filter_pokemon(monkeypatch):
+def test_get_builds_invalid_strategy(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Pikachu"
-            self.role = "Attacker"
-            self.pokemon_win_rate = 55.0
-            self.pokemon_pick_rate = 20.0
-            self.move_1 = "Thunderbolt"
-            self.move_2 = "Volt Tackle"
-            self.moveset_win_rate = 52.0
-            self.moveset_pick_rate = 18.0
-            self.moveset_true_pick_rate = 17.0
-            self.item = "Wise Glasses"
-            self.moveset_item_win_rate = 53.0
-            self.moveset_item_pick_rate = 15.0
-            self.moveset_item_true_pick_rate = 14.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(id=1, week=sample_week),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds?sort_by=not_a_strategy")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-
-    # Act
-    response = client.get("/builds?pokemon=Pikachu")
-
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 1
-    assert data[0]["pokemon"] == "Pikachu"
+        # Assert
+        assert response.status_code == 400
 
 
-def test_get_builds_filter_ignore_pokemon(monkeypatch):
+def test_get_builds_invalid_relevance(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Snorlax"
-            self.role = "Defender"
-            self.pokemon_win_rate = 50.0
-            self.pokemon_pick_rate = 15.0
-            self.move_1 = "Tackle"
-            self.move_2 = "Block"
-            self.moveset_win_rate = 48.0
-            self.moveset_pick_rate = 13.0
-            self.moveset_true_pick_rate = 12.0
-            self.item = "Leftovers"
-            self.moveset_item_win_rate = 49.0
-            self.moveset_item_pick_rate = 10.0
-            self.moveset_item_true_pick_rate = 9.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(id=1, week=sample_week),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds?relevance=not_a_strategy")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-
-    # Act
-    response = client.get("/builds?ignore_pokemon=Snorlax")
-
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 0
+        # Assert
+        assert response.status_code == 400
 
 
-def test_get_builds_filter_role(monkeypatch):
+def test_get_builds_filter_pokemon(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Lucario"
-            self.role = "All-Rounder"
-            self.pokemon_win_rate = 60.0
-            self.pokemon_pick_rate = 25.0
-            self.move_1 = "Power-Up Punch"
-            self.move_2 = "Bone Rush"
-            self.moveset_win_rate = 58.0
-            self.moveset_pick_rate = 22.0
-            self.moveset_true_pick_rate = 21.0
-            self.item = "Muscle Band"
-            self.moveset_item_win_rate = 59.0
-            self.moveset_item_pick_rate = 20.0
-            self.moveset_item_true_pick_rate = 19.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
+            create_build_response(id=2, week=sample_week, pokemon="Snorlax"),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds?pokemon=Pikachu")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-
-    # Act
-    response = client.get("/builds?role=All-Rounder")
-
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 1
-    assert data[0]["role"] == "All-Rounder"
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["pokemon"] == "Pikachu"
 
 
-def test_get_builds_filter_ignore_role(monkeypatch):
+def test_get_builds_filter_ignore_pokemon(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Lucario"
-            self.role = "All-Rounder"
-            self.pokemon_win_rate = 60.0
-            self.pokemon_pick_rate = 25.0
-            self.move_1 = "Power-Up Punch"
-            self.move_2 = "Bone Rush"
-            self.moveset_win_rate = 58.0
-            self.moveset_pick_rate = 22.0
-            self.moveset_true_pick_rate = 21.0
-            self.item = "Muscle Band"
-            self.moveset_item_win_rate = 59.0
-            self.moveset_item_pick_rate = 20.0
-            self.moveset_item_true_pick_rate = 19.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
+            create_build_response(id=2, week=sample_week, pokemon="Snorlax"),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds?ignore_pokemon=Snorlax")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-
-    # Act
-    response = client.get("/builds?ignore_role=All-Rounder")
-
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 0
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["pokemon"] == "Pikachu"
 
 
-def test_get_builds_filter_item(monkeypatch):
+def test_get_builds_filter_role(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Lucario"
-            self.role = "All-Rounder"
-            self.pokemon_win_rate = 60.0
-            self.pokemon_pick_rate = 25.0
-            self.move_1 = "Power-Up Punch"
-            self.move_2 = "Bone Rush"
-            self.moveset_win_rate = 58.0
-            self.moveset_pick_rate = 22.0
-            self.moveset_true_pick_rate = 21.0
-            self.item = "Muscle Band"
-            self.moveset_item_win_rate = 59.0
-            self.moveset_item_pick_rate = 20.0
-            self.moveset_item_true_pick_rate = 19.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(
+                id=1, week=sample_week, pokemon="Pikachu", role="Attacker"
+            ),
+            create_build_response(
+                id=2, week=sample_week, pokemon="Snorlax", role="Defender"
+            ),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds?role=Defender")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
-
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
-
-    # Act
-    response = client.get("/builds?item=Muscle Band")
-
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 1
-    assert data[0]["item"] == "Muscle Band"
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["role"] == "Defender"
 
 
-def test_get_builds_filter_ignore_item(monkeypatch):
+def test_get_builds_filter_ignore_role(sample_week):
     # Arrange
-    class DummyBuild:
-        def __init__(self, id):
-            self.id = id
-            self.pokemon = "Lucario"
-            self.role = "All-Rounder"
-            self.pokemon_win_rate = 60.0
-            self.pokemon_pick_rate = 25.0
-            self.move_1 = "Power-Up Punch"
-            self.move_2 = "Bone Rush"
-            self.moveset_win_rate = 58.0
-            self.moveset_pick_rate = 22.0
-            self.moveset_true_pick_rate = 21.0
-            self.item = "Muscle Band"
-            self.moveset_item_win_rate = 59.0
-            self.moveset_item_pick_rate = 20.0
-            self.moveset_item_true_pick_rate = 19.0
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(
+                id=1, week=sample_week, pokemon="Pikachu", role="Attacker"
+            ),
+            create_build_response(
+                id=2, week=sample_week, pokemon="Snorlax", role="Defender"
+            ),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    dummy_builds = [DummyBuild(0)]
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.get_all_builds_by_table",
-        lambda self, table: dummy_builds,
-    )
+        # Act
+        response = client.get("/builds?ignore_role=Attacker")
 
-    def build_repo_init(self):
-        self.table_name = "dummy_table"
-        self.conn = None
-        self.cursor = None
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["role"] == "Defender"
 
-    monkeypatch.setattr(
-        "repository.build_repository.BuildRepository.__init__", build_repo_init
-    )
 
-    # Act
-    response = client.get("/builds?ignore_item=Muscle Band")
+def test_get_builds_filter_item(sample_week):
+    # Arrange
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(
+                id=1, week=sample_week, pokemon="Pikachu", item="Wise Glasses"
+            ),
+            create_build_response(
+                id=2, week=sample_week, pokemon="Snorlax", item="Leftovers"
+            ),
+        ]
+        mock_repo_class.return_value = mock_repo
 
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 0
+        # Act
+        response = client.get("/builds?item=Wise Glasses")
+
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["item"] == "Wise Glasses"
+
+
+def test_get_builds_filter_ignore_item(sample_week):
+    # Arrange
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(
+                id=1, week=sample_week, pokemon="Pikachu", item="Wise Glasses"
+            ),
+            create_build_response(
+                id=2, week=sample_week, pokemon="Snorlax", item="Leftovers"
+            ),
+        ]
+        mock_repo_class.return_value = mock_repo
+
+        # Act
+        response = client.get("/builds?ignore_item=Leftovers")
+
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["item"] == "Wise Glasses"
+
+
+def test_get_builds_top_n(sample_week):
+    # Arrange
+    with patch("api.main.BuildRepository") as mock_repo_class:
+        mock_repo = MagicMock()
+        mock_repo.get_available_weeks.return_value = [sample_week]
+        mock_repo.get_all_builds.return_value = [
+            create_build_response(id=i, week=sample_week, pokemon=f"Pokemon{i}")
+            for i in range(10)
+        ]
+        mock_repo_class.return_value = mock_repo
+
+        # Act
+        response = client.get("/builds?top_n=3")
+
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 3
