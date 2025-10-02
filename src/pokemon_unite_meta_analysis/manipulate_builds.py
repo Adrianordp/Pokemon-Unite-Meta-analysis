@@ -89,10 +89,11 @@ class ManipulateBuilds:
 
         return data
 
-    def _get_builds(self) -> list[BuildResponse]:
-        LOG.info("Getting builds from table")
+    def _get_builds(self, week: str = None) -> list[BuildResponse]:
+        LOG.info("Getting builds from repository")
+        LOG.debug("week: %s", week)
 
-        return self.build_repository.get_all_builds_by_table(self.date)
+        return self.build_repository.get_all_builds(week=week)
 
     def _return_builds_as_json(self, builds: list[BuildResponse]) -> list[dict]:
         LOG.info("Returning builds as json")
@@ -152,7 +153,9 @@ class ManipulateBuilds:
         LOG.debug("relevance_threshold: %s", relevance_threshold)
         LOG.debug("print_result: %s", print_result)
 
-        builds = self._get_builds()
+        # Use self.date as the week filter if available
+        week = self.date if hasattr(self, "date") else None
+        builds = self._get_builds(week=week)
 
         relevant_builds = self._most_relevant(
             builds, relevance, relevance_threshold, get_builds=lambda: builds
