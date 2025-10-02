@@ -11,7 +11,7 @@ class BuildsQueryParams(BaseModel):
     Query parameters for the /builds endpoint.
 
     Attributes:
-        week (Optional[int]): Week number for filtering builds.
+        week (Optional[str]): Week identificator for filtering builds.
         id (Optional[int]): Build ID for direct lookup.
         relevance (Optional[str]): Relevance strategy (any, moveset_item_true_pr, position_of_popularity).
         relevance_threshold (Optional[float]): Threshold for relevance filtering.
@@ -26,8 +26,8 @@ class BuildsQueryParams(BaseModel):
         top_n (Optional[int]): Limit to top N results.
     """
 
-    week: Optional[int] = Field(
-        None, description="Week number for filtering builds"
+    week: Optional[str] = Field(
+        None, description="Week identificator for filtering builds"
     )
     id: Optional[int] = Field(None, description="Build ID for direct lookup")
     relevance: Optional[str] = Field(
