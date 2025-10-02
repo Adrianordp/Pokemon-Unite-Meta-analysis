@@ -9,7 +9,10 @@ from pydantic import BaseModel
 class BuildResponse(BaseModel):
     """
     Pydantic response model for Build
-
+    id:
+        The unique identifier for the build.
+    week:
+        The week identifier for the build.
     pokemon:
         The name of the Pokémon.
     role:
@@ -30,6 +33,8 @@ class BuildResponse(BaseModel):
         The true pick rate of the moveset with the item.
     """
 
+    id: int
+    week: str
     pokemon: str
     role: str
     pokemon_win_rate: float
