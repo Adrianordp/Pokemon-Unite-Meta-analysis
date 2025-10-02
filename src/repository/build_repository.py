@@ -64,18 +64,7 @@ class BuildRepository:
 
         self.conn: sqlite3.Connection = conn
         self.cursor: sqlite3.Cursor = self.conn.cursor()
-
-        if table_name is None:
-            LOG.warning("No table name provided, defaulting to latest table")
-            table_names = self.get_table_names()
-
-            if table_names:
-                table_name = sorted(table_names)[-1]
-                LOG.info("Defaulting to latest table: %s", table_name)
-            else:
-                LOG.warning("No tables found in the database")
-
-        self.table_name: str = table_name
+        self.table_name: str = "builds"
 
     def set_table_name(self, table_name) -> None:
         """
@@ -146,34 +135,35 @@ class BuildRepository:
 
         self.conn.commit()
 
-    def create(self, build: BuildResponse, commit=True) -> None:
+    def create(self, build: BuildResponse, week: str, commit=True) -> bool:
         """
         Create a new build
 
         Args:
             build (BuildResponse): The build to create
+            week (str): The week identifier for the table name
             commit (bool, optional): Whether to commit the changes. Defaults to
                 True.
         """
         LOG.info("create")
         LOG.debug("build: %s", build)
+        LOG.debug("week: %s", week)
         LOG.debug("commit: %s", commit)
-
-        if not self.table_name:
-            LOG.error("Table name not set")
-            print("Table name not set")
-            return False
 
         LOG.info("Inserting build into the database")
 
         try:
-            self._create_table()
             self.cursor.execute(
-                f"""
-                INSERT INTO {self.table_name} (pokemon, role, pkm_win_rate, pkm_pick_rate, move1, move2, moveset_win_rate, moveset_pick_rate, moveset_true_pick_rate, item, moveset_item_win_rate, moveset_item_pick_rate, moveset_item_true_pick_rate)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """
+                INSERT OR REPLACE INTO builds 
+                (week, pokemon, role, pkm_win_rate, pkm_pick_rate, move1, move2,
+                 moveset_win_rate, moveset_pick_rate, moveset_true_pick_rate,
+                 item, moveset_item_win_rate, moveset_item_pick_rate,
+                 moveset_item_true_pick_rate)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
+                    week,
                     build.pokemon,
                     build.role,
                     build.pokemon_win_rate,
@@ -194,48 +184,63 @@ class BuildRepository:
                 LOG.info("Committing changes to the database")
                 self.conn.commit()
 
-        except sqlite3.OperationalError:
-            LOG.error("Table name not set")
-            print("Table name not set")
+        except sqlite3.Error as error:
+            LOG.error("SQLite error creating build: %s", error)
             return False
 
         LOG.info("BuildResponse inserted successfully")
+
         return True
 
-    def get_all_builds_by_table(self, table_name) -> list[BuildResponse]:
+    def get_all_builds(self, week: str = None) -> list[BuildResponse]:
         """
         Get all builds
 
         Args:
-            table_name (str): The name of the table to interact with.
+            week (str, optional): The week identifier for the builds. Defaults
+                to None.
 
         Returns:
             list[BuildResponse]: List of builds
         """
-        LOG.info("get_all_builds_by_table")
-        LOG.debug("table_name: %s", table_name)
+        LOG.info("get_all_builds")
+        LOG.debug("week: %s", week)
 
-        self.cursor.execute(f"SELECT * FROM {table_name}")
+        if week:
+            self.cursor.execute("SELECT * FROM builds WHERE week = ?", (week,))
+        else:
+            self.cursor.execute("SELECT * FROM builds")
+
         query = self.cursor.fetchall()
+        LOG.debug("query: %s", query)
 
         return [
             BuildResponse(
-                pokemon=build[1],
-                role=build[2],
-                pokemon_win_rate=build[3],
-                pokemon_pick_rate=build[4],
-                move_1=build[5],
-                move_2=build[6],
-                moveset_win_rate=build[7],
-                moveset_pick_rate=build[8],
-                moveset_true_pick_rate=build[9],
-                item=build[10],
-                moveset_item_win_rate=build[11],
-                moveset_item_pick_rate=build[12],
-                moveset_item_true_pick_rate=build[13],
+                id=build[0],
+                week=build[1],
+                pokemon=build[2],
+                role=build[3],
+                pokemon_win_rate=build[4],
+                pokemon_pick_rate=build[5],
+                move_1=build[6],
+                move_2=build[7],
+                moveset_win_rate=build[8],
+                moveset_pick_rate=build[9],
+                moveset_true_pick_rate=build[10],
+                item=build[11],
+                moveset_item_win_rate=build[12],
+                moveset_item_pick_rate=build[13],
+                moveset_item_true_pick_rate=build[14],
             )
             for build in query
         ]
+
+    def get_available_weeks(self) -> list[str]:
+        """Get list of available weeks"""
+        self.cursor.execute(
+            "SELECT DISTINCT week FROM builds ORDER BY week DESC"
+        )
+        return [row[0] for row in self.cursor.fetchall()]
 
     def get_all_pokemons_by_table(self, table_name) -> list[str]:
         """
