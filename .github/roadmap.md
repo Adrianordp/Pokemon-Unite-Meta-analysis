@@ -1,4 +1,3 @@
-
 # Roadmap
 
 ## Feature Branches & Tasks
@@ -25,6 +24,12 @@
 - [x] Ensure docs are accessible at `/docs` and `/redoc`
 - [x] Write tests to verify documentation generation
 - [x] Document API usage examples in README
+
+### Database Refactor (`refactor/Migrate-to-single-builds-table`)
+- [x] Migrate from per-week tables to a single `builds` table with a `week` column
+- [x] Update all API endpoints, repository, and tests to use the new schema
+- [x] Add migration script and documentation
+- [x] Ensure all new features use the unified schema
 
 ### Champion Data Endpoints (`feature/champion-endpoints`)
 - [ ] Create branch `feature/champion-endpoints`
