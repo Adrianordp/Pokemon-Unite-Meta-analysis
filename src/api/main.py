@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Path
 
 from api.config import settings
 from api.custom_log import LOG
@@ -15,6 +15,39 @@ from pokemon_unite_meta_analysis.sort_strategy import SORT_STRATEGIES, SortBy
 from repository.build_repository import BuildRepository
 
 app = FastAPI(title=settings.api_name, debug=settings.debug)
+
+
+# /pokemon endpoints
+@app.get(
+    "/pokemon",
+    response_model=List[str],
+    summary="Get list of available Pokémon",
+    description="Returns a list of all unique Pokémon names in the builds database.",
+)
+def get_pokemon():
+    repo = BuildRepository()
+    pokemons = repo.get_all_pokemons_by_table("builds")
+    # Remove duplicates and sort
+    return sorted(list(set(pokemons)))
+
+
+@app.get(
+    "/pokemon/{name}",
+    response_model=List[BuildResponse],
+    summary="Get all builds for a specific Pokémon",
+    description="Returns all builds for the specified Pokémon name.",
+)
+def get_pokemon_by_name(name: str = Path(..., description="Pokémon name")):
+    repo = BuildRepository()
+    builds = repo.get_all_builds()
+    filtered = [
+        build for build in builds if build.pokemon.lower() == name.lower()
+    ]
+    if not filtered:
+        raise HTTPException(
+            status_code=404, detail=f"Pokémon '{name}' not found."
+        )
+    return filtered
 
 
 @app.get(
