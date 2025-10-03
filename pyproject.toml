@@ -1,6 +1,6 @@
 [project]
 name = "pokemon-unite-meta-analysis"
-version = "0.1.0"
+version = "0.2.0"
 description = "Backend to expose Pokemon Unite data analysis via API"
 authors = [{ name = "Adriano Rodrigues", email = "adrianordp1@gmail.com" }]
 readme = "README.md"
