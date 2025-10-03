@@ -1,8 +1,10 @@
-from entity.build import Build
+from conftest import create_build_response
 
 
 def test_build_instantiation():
     # Arrange
+    id = 1
+    week = "Y2025m09d28"
     pokemon = "Pikachu"
     role = "Attacker"
     pokemon_win_rate = 0.55
@@ -18,7 +20,9 @@ def test_build_instantiation():
     moveset_item_true_pick_rate = 0.08
 
     # Act
-    build = Build(
+    build = create_build_response(
+        id=id,
+        week=week,
         pokemon=pokemon,
         role=role,
         pokemon_win_rate=pokemon_win_rate,
@@ -35,6 +39,8 @@ def test_build_instantiation():
     )
 
     # Assert
+    assert build.id == id
+    assert build.week == week
     assert build.pokemon == pokemon
     assert build.role == role
     assert build.pokemon_win_rate == pokemon_win_rate

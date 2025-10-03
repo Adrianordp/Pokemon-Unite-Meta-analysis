@@ -50,12 +50,14 @@ def print_sorted_data():
     builds = builds_query.sort_values(
         "moveset_item_true_pick_rate", ascending=False
     )
-
-    builds = builds.head(250)
+    n_builds = 250
+    builds = builds.head(n_builds)
     builds = builds.reset_index()
     builds.index = builds.index + 1
+
+    threshold = builds.tail(1)["moveset_item_true_pick_rate"].iloc[0]
     # print(builds)
-    print(builds.tail(1)["moveset_item_true_pick_rate"].iloc[0])
+    print(f"Top {n_builds} builds from table {table}. Threshold: {threshold}")
 
     # builds = builds.sort_values("moveset_item_true_pick_rate", ascending=False)
     builds = builds.sort_values("moveset_item_win_rate", ascending=False)

@@ -1,11 +1,11 @@
 [project]
 name = "pokemon-unite-meta-analysis"
-version = "0.1.0"
+version = "0.2.0"
 description = "Backend to expose Pokemon Unite data analysis via API"
 authors = [{ name = "Adriano Rodrigues", email = "adrianordp1@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.13,<4.0"
-dependencies = ["fastapi (>=0.116.1,<0.117.0)", "pandas (>=2.3.2,<3.0.0)"]
+dependencies = ["fastapi (>=0.116.1,<0.117.0)", "pandas (>=2.3.2,<3.0.0)", "pydantic-settings (>=2.11.0,<3.0.0)", "httpx (>=0.28.1,<0.29.0)"]
 
 [tool.poetry]
 include = ["src/**"]
@@ -18,14 +18,31 @@ dev = [
     "pytest-cov (>=7.0.0,<8.0.0)",
     "taskipy (>=1.14.1,<2.0.0)",
     "coverage (>=7.10.7,<8.0.0)",
+    "pytest-asyncio (>=1.2.0,<2.0.0)",
 ]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.ruff]
+line-length = 80
+
 [tool.taskipy.tasks]
 test = "pytest -v"
 lint = "ruff check ."
 run = "python -m src.pokemon_unite_meta_analysis"
 coverage = "coverage run -m pytest && coverage report -m && coverage html"
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug",
+    "@abc.abstractmethod",
+]

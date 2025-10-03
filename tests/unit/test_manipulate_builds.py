@@ -1,18 +1,20 @@
 from unittest.mock import MagicMock
 
-from entity.build import Build
+from conftest import create_build_response
+
 from pokemon_unite_meta_analysis.manipulate_builds import (
     ManipulateBuilds,
-    Relevance,
     SortBy,
 )
 
 
-def test_manipulate_builds_sort_and_json():
+def test_manipulate_builds_sort_and_json(sample_week):
     # Arrange
     mock_repo = MagicMock()
-    mock_repo.get_all_builds_by_table.return_value = [
-        Build(
+    mock_repo.get_all_builds.return_value = [
+        create_build_response(
+            id=1,
+            week=sample_week,
             pokemon="Snorlax",
             role="Defender",
             pokemon_win_rate=0.60,
@@ -27,7 +29,9 @@ def test_manipulate_builds_sort_and_json():
             moveset_item_pick_rate=0.18,
             moveset_item_true_pick_rate=0.12,
         ),
-        Build(
+        create_build_response(
+            id=2,
+            week=sample_week,
             pokemon="Gengar",
             role="Speedster",
             pokemon_win_rate=0.58,
@@ -49,7 +53,7 @@ def test_manipulate_builds_sort_and_json():
     result_json = manip.run(
         sort_by=SortBy.POKEMON_WIN_RATE,
         top_n=1,
-        relevance=Relevance.ANY,
+        relevance="any",
         print_result=False,
     )
 
@@ -58,35 +62,35 @@ def test_manipulate_builds_sort_and_json():
     assert "Gengar" not in result_json
 
 
-
-
 def test_manipulate_builds_unsupported_relevance():
     # Arrange
     mock_repo = MagicMock()
-    mock_repo.get_all_builds_by_table.return_value = []
+    mock_repo.get_all_builds.return_value = []
     manip = ManipulateBuilds(mock_repo, "dummy_date")
 
     class FakeRelevance:
         pass
-    
+
     # Act
     try:
         manip.run(
             sort_by=SortBy.POKEMON_WIN_RATE,
-            relevance=FakeRelevance(),
+            relevance="invalid_relevance",
         )
     # Assert
     except ValueError as e:
-        assert "not supported" in str(e)
+        assert "Invalid relevance:" in str(e)
     else:
         assert False, "ValueError not raised"
 
 
-def test_head_returns_n_builds():
+def test_head_returns_n_builds(sample_week):
     # Arrange
     mock_repo = MagicMock()
     builds = [
-        Build(
+        create_build_response(
+            id=i,
+            week=sample_week,
             pokemon=f"Poke{i}",
             role="Role",
             pokemon_win_rate=0.5,
@@ -100,22 +104,25 @@ def test_head_returns_n_builds():
             moveset_item_win_rate=0.52,
             moveset_item_pick_rate=0.12,
             moveset_item_true_pick_rate=0.08,
-        ) for i in range(5)
+        )
+        for i in range(5)
     ]
     manip = ManipulateBuilds(mock_repo, "dummy_date")
-    
+
     # Act
     result = manip._head(builds, n=3)
-    
+
     # Assert
     assert len(result) == 3
 
 
-def test_head_returns_all_builds():
+def test_head_returns_all_builds(sample_week):
     # Arrange
     mock_repo = MagicMock()
     builds = [
-        Build(
+        create_build_response(
+            id=i,
+            week=sample_week,
             pokemon=f"Poke{i}",
             role="Role",
             pokemon_win_rate=0.5,
@@ -129,7 +136,8 @@ def test_head_returns_all_builds():
             moveset_item_win_rate=0.52,
             moveset_item_pick_rate=0.12,
             moveset_item_true_pick_rate=0.08,
-        ) for i in range(5)
+        )
+        for i in range(5)
     ]
     manip = ManipulateBuilds(mock_repo, "dummy_date")
 
