@@ -32,7 +32,7 @@
 - [x] Ensure all new features use the unified schema
 
 ### Champion Data Endpoints (`feature/champion-endpoints`)
-- [ ] Create branch `feature/champion-endpoints`
+- [x] Create branch `feature/champion-endpoints`
 - [ ] Implement `/pokemon`, `/pokemon/{name}` endpoints
 - [ ] Implement champion data endpoints (FastAPI)
 - [ ] Write integration tests for champion endpoints
