@@ -21,10 +21,10 @@
 
 ### Swagger/OpenAPI Documentation (`feature/setup-swagger-documentation`)
 - [x] Create branch `feature/setup-swagger-documentation`
-- [ ] Implement Swagger/OpenAPI documentation for all endpoints
-- [ ] Ensure docs are accessible at `/docs` and `/redoc`
-- [ ] Write tests to verify documentation generation
-- [ ] Document API usage examples in README
+- [x] Implement Swagger/OpenAPI documentation for all endpoints
+- [x] Ensure docs are accessible at `/docs` and `/redoc`
+- [x] Write tests to verify documentation generation
+- [x] Document API usage examples in README
 
 ### Champion Data Endpoints (`feature/champion-endpoints`)
 - [ ] Create branch `feature/champion-endpoints`

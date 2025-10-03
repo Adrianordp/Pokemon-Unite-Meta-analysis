@@ -1,6 +1,6 @@
 import pytest
+from conftest import create_build_response
 
-from entity.build_response import BuildResponse
 from pokemon_unite_meta_analysis.filter_strategy import (
     FilterStrategy,
     IgnoreItemFilterStrategy,
@@ -13,9 +13,11 @@ from pokemon_unite_meta_analysis.filter_strategy import (
 
 
 @pytest.fixture
-def sample_builds():
+def sample_builds(sample_week):
     return [
-        BuildResponse(
+        create_build_response(
+            id=1,
+            week=sample_week,
             pokemon="Pikachu",
             role="Attacker",
             pokemon_win_rate=55.0,
@@ -30,7 +32,9 @@ def sample_builds():
             moveset_item_pick_rate=15.0,
             moveset_item_true_pick_rate=14.0,
         ),
-        BuildResponse(
+        create_build_response(
+            id=2,
+            week=sample_week,
             pokemon="Snorlax",
             role="Defender",
             pokemon_win_rate=50.0,
@@ -45,7 +49,9 @@ def sample_builds():
             moveset_item_pick_rate=10.0,
             moveset_item_true_pick_rate=9.0,
         ),
-        BuildResponse(
+        create_build_response(
+            id=3,
+            week=sample_week,
             pokemon="Lucario",
             role="All-Rounder",
             pokemon_win_rate=60.0,

@@ -57,6 +57,18 @@ def health_check():
     return {"status": "ok"}
 
 
+@app.get(
+    "/weeks",
+    response_model=List[str],
+    summary="Get available weeks",
+    description="Returns a list of available weeks for which builds are stored.",
+)
+def get_weeks():
+    """Get list of available weeks"""
+    repo = BuildRepository()
+    return repo.get_available_weeks()
+
+
 # /builds endpoint with improved validation and error handling
 @app.get(
     "/builds",
@@ -133,15 +145,26 @@ def get_builds(params: BuildsQueryParams = Depends()):
     LOG.debug("top_n: %s", params.top_n)
 
     repo = BuildRepository()
-    all_builds = repo.get_all_builds_by_table(repo.table_name)
+
+    week = None
+
+    if params.week is not None:
+        available_weeks = repo.get_available_weeks()
+        if params.week not in available_weeks:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid week: {params.week}. Available weeks: {available_weeks}",
+            )
+        week = params.week
+
+    all_builds = repo.get_all_builds(week=week)
     builds = all_builds.copy()
 
     # Direct ID lookup
     if params.id is not None:
         if params.id < 0 or params.id >= len(builds):
             raise HTTPException(status_code=404, detail="Build ID not found")
-        b = builds[params.id]
-        return [BuildResponse(**b.__dict__)]
+        return [builds[params.id]]
 
     # Validate and map relevance
     try:

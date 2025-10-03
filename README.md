@@ -40,8 +40,8 @@ GET /builds?week=Y2025m09d28&pokemon=pikachu&role=attacker&sort_by=moveset_item_
 
 | Parameter           | Type      | Description                                      |
 |---------------------|-----------|--------------------------------------------------|
-| week                | int       | Week number for filtering builds                 |
 | id                  | int       | Build ID for direct lookup                       |
+| week                | int       | Week number for filtering builds                 |
 | relevance           | str       | Relevance strategy (any, moveset_item_true_pr, position_of_popularity) |
 | relevance_threshold | float     | Threshold for relevance filtering                |
 | sort_by             | str       | Field to sort by                                 |

@@ -1,4 +1,5 @@
-from entity.build_response import BuildResponse
+from conftest import create_build_response
+
 from pokemon_unite_meta_analysis.relevance_strategy import (
     RELEVANCE_STRATEGIES,
     RelevanceStrategy,
@@ -6,8 +7,12 @@ from pokemon_unite_meta_analysis.relevance_strategy import (
 
 
 def make_builds():
+    """Helper function to create test builds with id and week"""
+    week = "Y2025m09d28"
     return [
-        BuildResponse(
+        create_build_response(
+            id=1,
+            week=week,
             pokemon="Snorlax",
             role="Defender",
             pokemon_win_rate=60,
@@ -22,7 +27,9 @@ def make_builds():
             moveset_item_pick_rate=18,
             moveset_item_true_pick_rate=12,
         ),
-        BuildResponse(
+        create_build_response(
+            id=2,
+            week=week,
             pokemon="Gengar",
             role="Speedster",
             pokemon_win_rate=58,
@@ -37,7 +44,9 @@ def make_builds():
             moveset_item_pick_rate=16,
             moveset_item_true_pick_rate=10,
         ),
-        BuildResponse(
+        create_build_response(
+            id=3,
+            week=week,
             pokemon="Pikachu",
             role="Attacker",
             pokemon_win_rate=55,
@@ -52,7 +61,9 @@ def make_builds():
             moveset_item_pick_rate=12,
             moveset_item_true_pick_rate=8,
         ),
-        BuildResponse(
+        create_build_response(
+            id=4,
+            week=week,
             pokemon="Lucario",
             role="All-Rounder",
             pokemon_win_rate=57,
