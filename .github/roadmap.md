@@ -1,4 +1,3 @@
-
 # Roadmap
 
 ## Feature Branches & Tasks
@@ -26,12 +25,18 @@
 - [x] Write tests to verify documentation generation
 - [x] Document API usage examples in README
 
+### Database Refactor (`refactor/Migrate-to-single-builds-table`)
+- [x] Migrate from per-week tables to a single `builds` table with a `week` column
+- [x] Update all API endpoints, repository, and tests to use the new schema
+- [x] Add migration script and documentation
+- [x] Ensure all new features use the unified schema
+
 ### Champion Data Endpoints (`feature/champion-endpoints`)
-- [ ] Create branch `feature/champion-endpoints`
-- [ ] Implement `/pokemon`, `/pokemon/{name}` endpoints
-- [ ] Implement champion data endpoints (FastAPI)
-- [ ] Write integration tests for champion endpoints
-- [ ] Document endpoints
+- [x] Create branch `feature/champion-endpoints`
+- [x] Implement `/pokemon`, `/pokemon/{name}` endpoints
+- [x] Implement champion data endpoints (FastAPI)
+- [x] Write integration tests for champion endpoints
+- [x] Document endpoints
 
 ### Metagame Analysis Endpoints (`feature/metagame-analysis-endpoint`)
 - [ ] Create branch `feature/metagame-analysis-endpoint`
