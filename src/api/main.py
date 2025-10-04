@@ -252,3 +252,258 @@ def get_builds(params: BuildsQueryParams = Depends()):
 
     # Convert to response model
     return [BuildResponse(**b.__dict__) for b in builds]
+
+
+# /relevance endpoints
+@app.get(
+    "/relevance",
+    response_model=List[dict],
+    summary="Get list of available relevance strategies",
+    description="Returns a list of all available relevance strategies with their descriptions.",
+)
+def get_relevance_strategies():
+    """Get list of available relevance strategies"""
+    LOG.info("get_relevance_strategies")
+    return [
+        {
+            "name": Relevance.ANY.value,
+            "description": "Returns all builds without filtering.",
+        },
+        {
+            "name": Relevance.PERCENTAGE.value,
+            "description": "Filters builds with moveset_item_true_pick_rate >= threshold (0-100).",
+        },
+        {
+            "name": Relevance.TOP_N.value,
+            "description": "Returns top N builds based on moveset_item_true_pick_rate.",
+        },
+        {
+            "name": Relevance.CUMULATIVE_COVERAGE.value,
+            "description": "Returns builds until cumulative moveset_item_true_pick_rate >= threshold (0-100).",
+        },
+        {
+            "name": Relevance.QUARTILE.value,
+            "description": "Returns builds from the top N quartiles (threshold: 1-4).",
+        },
+    ]
+
+
+@app.get(
+    "/relevance/{strategy}",
+    response_model=dict,
+    summary="Get details about a specific relevance strategy",
+    description="Returns detailed information about the specified relevance strategy.",
+)
+def get_relevance_strategy(
+    strategy: str = Path(..., description="Relevance strategy name"),
+):
+    """Get details about a specific relevance strategy"""
+    LOG.info("get_relevance_strategy")
+    LOG.debug("strategy: %s", strategy)
+
+    # Validate strategy
+    try:
+        relevance_enum = Relevance(strategy)
+    except ValueError:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Relevance strategy '{strategy}' not found.",
+        )
+
+    strategies_info = {
+        Relevance.ANY: {
+            "name": Relevance.ANY.value,
+            "description": "Returns all builds without filtering.",
+            "threshold_type": "none",
+            "threshold_description": "Threshold is ignored for this strategy.",
+        },
+        Relevance.PERCENTAGE: {
+            "name": Relevance.PERCENTAGE.value,
+            "description": "Filters builds with moveset_item_true_pick_rate >= threshold.",
+            "threshold_type": "percentage",
+            "threshold_description": "Threshold should be a value between 0 and 100 representing the minimum pick rate percentage.",
+        },
+        Relevance.TOP_N: {
+            "name": Relevance.TOP_N.value,
+            "description": "Returns top N builds based on moveset_item_true_pick_rate.",
+            "threshold_type": "integer",
+            "threshold_description": "Threshold should be a positive integer representing the number of top builds to return.",
+        },
+        Relevance.CUMULATIVE_COVERAGE: {
+            "name": Relevance.CUMULATIVE_COVERAGE.value,
+            "description": "Returns builds until cumulative moveset_item_true_pick_rate >= threshold.",
+            "threshold_type": "percentage",
+            "threshold_description": "Threshold should be a value between 0 and 100 representing the cumulative coverage percentage.",
+        },
+        Relevance.QUARTILE: {
+            "name": Relevance.QUARTILE.value,
+            "description": "Returns builds from the top N quartiles based on moveset_item_true_pick_rate.",
+            "threshold_type": "quartile",
+            "threshold_description": "Threshold should be 1, 2, 3, or 4 representing the number of quartiles to include (1 = top 25%, 2 = top 50%, etc.).",
+        },
+    }
+
+    return strategies_info[relevance_enum]
+
+
+# /sort_by endpoints
+@app.get(
+    "/sort_by",
+    response_model=List[dict],
+    summary="Get list of available sort criteria",
+    description="Returns a list of all available sort criteria for builds.",
+)
+def get_sort_criteria():
+    """Get list of available sort criteria"""
+    LOG.info("get_sort_criteria")
+    return [
+        {
+            "name": SortBy.POKEMON.value,
+            "description": "Sort by Pokémon name (alphabetically).",
+            "default_order": "asc",
+        },
+        {
+            "name": SortBy.ROLE.value,
+            "description": "Sort by role (alphabetically).",
+            "default_order": "asc",
+        },
+        {
+            "name": SortBy.POKEMON_WIN_RATE.value,
+            "description": "Sort by Pokémon win rate.",
+            "default_order": "desc",
+        },
+        {
+            "name": SortBy.POKEMON_PICK_RATE.value,
+            "description": "Sort by Pokémon pick rate.",
+            "default_order": "desc",
+        },
+        {
+            "name": SortBy.MOVESET_WIN_RATE.value,
+            "description": "Sort by moveset win rate.",
+            "default_order": "desc",
+        },
+        {
+            "name": SortBy.MOVESET_PICK_RATE.value,
+            "description": "Sort by moveset pick rate.",
+            "default_order": "desc",
+        },
+        {
+            "name": SortBy.MOVESET_TRUE_PICK_RATE.value,
+            "description": "Sort by moveset true pick rate.",
+            "default_order": "desc",
+        },
+        {
+            "name": SortBy.ITEM.value,
+            "description": "Sort by item name (alphabetically).",
+            "default_order": "asc",
+        },
+        {
+            "name": SortBy.MOVESET_ITEM_WIN_RATE.value,
+            "description": "Sort by moveset item win rate.",
+            "default_order": "desc",
+        },
+        {
+            "name": SortBy.MOVESET_ITEM_PICK_RATE.value,
+            "description": "Sort by moveset item pick rate.",
+            "default_order": "desc",
+        },
+        {
+            "name": SortBy.MOVESET_ITEM_TRUE_PICK_RATE.value,
+            "description": "Sort by moveset item true pick rate.",
+            "default_order": "desc",
+        },
+    ]
+
+
+@app.get(
+    "/sort_by/{criteria}",
+    response_model=dict,
+    summary="Get details about a specific sort criteria",
+    description="Returns detailed information about the specified sort criteria.",
+)
+def get_sort_criteria_details(
+    criteria: str = Path(..., description="Sort criteria name"),
+):
+    """Get details about a specific sort criteria"""
+    LOG.info("get_sort_criteria_details")
+    LOG.debug("criteria: %s", criteria)
+
+    # Validate criteria
+    try:
+        sort_by_enum = SortBy(criteria)
+    except ValueError:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Sort criteria '{criteria}' not found.",
+        )
+
+    criteria_info = {
+        SortBy.POKEMON: {
+            "name": SortBy.POKEMON.value,
+            "description": "Sort builds by Pokémon name (alphabetically).",
+            "field_type": "string",
+            "default_order": "asc",
+        },
+        SortBy.ROLE: {
+            "name": SortBy.ROLE.value,
+            "description": "Sort builds by role (alphabetically).",
+            "field_type": "string",
+            "default_order": "asc",
+        },
+        SortBy.POKEMON_WIN_RATE: {
+            "name": SortBy.POKEMON_WIN_RATE.value,
+            "description": "Sort builds by Pokémon win rate (percentage).",
+            "field_type": "float",
+            "default_order": "desc",
+        },
+        SortBy.POKEMON_PICK_RATE: {
+            "name": SortBy.POKEMON_PICK_RATE.value,
+            "description": "Sort builds by Pokémon pick rate (percentage).",
+            "field_type": "float",
+            "default_order": "desc",
+        },
+        SortBy.MOVESET_WIN_RATE: {
+            "name": SortBy.MOVESET_WIN_RATE.value,
+            "description": "Sort builds by moveset win rate (percentage).",
+            "field_type": "float",
+            "default_order": "desc",
+        },
+        SortBy.MOVESET_PICK_RATE: {
+            "name": SortBy.MOVESET_PICK_RATE.value,
+            "description": "Sort builds by moveset pick rate (percentage).",
+            "field_type": "float",
+            "default_order": "desc",
+        },
+        SortBy.MOVESET_TRUE_PICK_RATE: {
+            "name": SortBy.MOVESET_TRUE_PICK_RATE.value,
+            "description": "Sort builds by moveset true pick rate (percentage).",
+            "field_type": "float",
+            "default_order": "desc",
+        },
+        SortBy.ITEM: {
+            "name": SortBy.ITEM.value,
+            "description": "Sort builds by item name (alphabetically).",
+            "field_type": "string",
+            "default_order": "asc",
+        },
+        SortBy.MOVESET_ITEM_WIN_RATE: {
+            "name": SortBy.MOVESET_ITEM_WIN_RATE.value,
+            "description": "Sort builds by moveset item win rate (percentage).",
+            "field_type": "float",
+            "default_order": "desc",
+        },
+        SortBy.MOVESET_ITEM_PICK_RATE: {
+            "name": SortBy.MOVESET_ITEM_PICK_RATE.value,
+            "description": "Sort builds by moveset item pick rate (percentage).",
+            "field_type": "float",
+            "default_order": "desc",
+        },
+        SortBy.MOVESET_ITEM_TRUE_PICK_RATE: {
+            "name": SortBy.MOVESET_ITEM_TRUE_PICK_RATE.value,
+            "description": "Sort builds by moveset item true pick rate (percentage).",
+            "field_type": "float",
+            "default_order": "desc",
+        },
+    }
+
+    return criteria_info[sort_by_enum]

@@ -39,10 +39,10 @@
 - [x] Document endpoints
 
 ### Metagame Analysis Endpoints (`feature/metagame-analysis-endpoint`)
-- [ ] Create branch `feature/metagame-analysis-endpoint`
-- [ ] Implement analysis endpoints (`/relevance`, `/relevance/{strategy}`, `/sort_by`, `/sort_by/{criteria}`)
-- [ ] Write integration tests for analysis endpoints
-- [ ] Document endpoints
+- [x] Create branch `feature/metagame-analysis-endpoint`
+- [x] Implement analysis endpoints (`/relevance`, `/relevance/{strategy}`, `/sort_by`, `/sort_by/{criteria}`)
+- [x] Write integration tests for analysis endpoints
+- [x] Document endpoints
 
 ### IDs, Weeks, Filters, Logs Endpoints (`feature-meta-endpoints`)
 - [ ] Create branch `feature-meta-endpoints`
