@@ -36,7 +36,7 @@ Python package and uses Poetry for dependency management.
    ```
 4. Start the development server:
    ```bash
-   poetry run uvicorn main:app --reload
+   poetry run uvicorn api.main:app --reload
    ```
 5. Access the API documentation at `http://localhost:8000/docs`
 
