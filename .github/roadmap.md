@@ -33,10 +33,10 @@
 
 ### Champion Data Endpoints (`feature/champion-endpoints`)
 - [x] Create branch `feature/champion-endpoints`
-- [ ] Implement `/pokemon`, `/pokemon/{name}` endpoints
-- [ ] Implement champion data endpoints (FastAPI)
-- [ ] Write integration tests for champion endpoints
-- [ ] Document endpoints
+- [x] Implement `/pokemon`, `/pokemon/{name}` endpoints
+- [x] Implement champion data endpoints (FastAPI)
+- [x] Write integration tests for champion endpoints
+- [x] Document endpoints
 
 ### Metagame Analysis Endpoints (`feature/metagame-analysis-endpoint`)
 - [ ] Create branch `feature/metagame-analysis-endpoint`
