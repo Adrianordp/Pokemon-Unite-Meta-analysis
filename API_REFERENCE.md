@@ -84,6 +84,56 @@ GET /ids
 # Response: [1, 2, 3, ..., 7854]
 ```
 
+#### GET `/roles`
+List all available roles.
+
+**Response:** Array of strings (role names, sorted alphabetically)
+
+**Example:**
+```bash
+GET /roles
+# Response: ["All-Rounder", "Attacker", "Defender", "Speedster", "Supporter"]
+```
+
+#### GET `/roles/{role}`
+Get all Pokémon names for a specific role.
+
+**Path Parameters:**
+- `role` (string) - Role name (case-insensitive)
+
+**Response:** Array of strings (Pokémon names for that role)
+
+**Example:**
+```bash
+GET /roles/attacker
+# Response: ["Charizard", "Cinderace", "Decidueye", ...]
+```
+
+#### GET `/items`
+List all available held items.
+
+**Response:** Array of strings (item names, sorted alphabetically)
+
+**Example:**
+```bash
+GET /items
+# Response: ["Assault Vest", "Attack Weight", "Buddy Barrier", ...]
+```
+
+#### GET `/items/{name}`
+Get all Pokémon names that use a specific held item.
+
+**Path Parameters:**
+- `name` (string) - Item name (case-insensitive)
+
+**Response:** Array of strings (Pokémon names that use this item)
+
+**Example:**
+```bash
+GET /items/potion
+# Response: ["Absol", "Cinderace", "Garchomp", ...]
+```
+
 ---
 
 ### 🔍 Metadata & Discovery Endpoints
@@ -440,7 +490,7 @@ Currently, no authentication is required. All endpoints are publicly accessible.
 
 ## Complete Endpoint List
 
-Total: 14 public endpoints
+Total: 18 public endpoints
 
 1. `GET /` - API root
 2. `GET /health` - Health check
@@ -449,10 +499,14 @@ Total: 14 public endpoints
 5. `GET /pokemon/{name}` - Get Pokémon builds
 6. `GET /weeks` - List weeks
 7. `GET /ids` - List build IDs
-8. `GET /relevance` - List relevance strategies
-9. `GET /relevance/{strategy}` - Relevance strategy details
-10. `GET /sort_by` - List sort criteria
-11. `GET /sort_by/{criteria}` - Sort criteria details
-12. `GET /filters` - List filters
-13. `GET /filters/{filter_name}` - Filter details
-14. `GET /logs` - Logs summary
+8. `GET /roles` - List roles
+9. `GET /roles/{role}` - Get Pokémon by role
+10. `GET /items` - List held items
+11. `GET /items/{name}` - Get Pokémon by item
+12. `GET /relevance` - List relevance strategies
+13. `GET /relevance/{strategy}` - Relevance strategy details
+14. `GET /sort_by` - List sort criteria
+15. `GET /sort_by/{criteria}` - Sort criteria details
+16. `GET /filters` - List filters
+17. `GET /filters/{filter_name}` - Filter details
+18. `GET /logs` - Logs summary
