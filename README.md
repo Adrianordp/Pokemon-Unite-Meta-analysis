@@ -57,6 +57,10 @@ The API provides several categories of endpoints:
 - **GET `/pokemon/{name}`** - Get all builds for a specific Pokémon
 - **GET `/weeks`** - List all available weeks
 - **GET `/ids`** - List all build IDs
+- **GET `/roles`** - List all available roles
+- **GET `/roles/{role}`** - Get all Pokémon names for a specific role
+- **GET `/items`** - List all available held items
+- **GET `/items/{name}`** - Get all Pokémon names that use a specific item
 
 ### Metadata & Discovery Endpoints
 - **GET `/relevance`** - List available relevance strategies
