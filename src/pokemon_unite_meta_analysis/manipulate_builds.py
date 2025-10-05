@@ -8,7 +8,7 @@ and retrieve builds based on various criteria.
 
 import json
 
-from entity.build_response import BuildResponse
+from entity.build_model import BuildModel
 from entity.sort_by import SortBy
 from pokemon_unite_meta_analysis.custom_log import LOG
 from pokemon_unite_meta_analysis.relevance_strategy import RELEVANCE_STRATEGIES
@@ -44,11 +44,11 @@ class ManipulateBuilds:
 
     def _most_relevant(
         self,
-        builds: list[BuildResponse],
+        builds: list[BuildModel],
         relevance: str,
         threshold: float,
         get_builds: callable,
-    ) -> list[BuildResponse]:
+    ) -> list[BuildModel]:
         LOG.info("Getting n most relevant builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("relevance: %s", relevance)
@@ -62,9 +62,7 @@ class ManipulateBuilds:
         )
         return relevant_builds
 
-    def _head(
-        self, builds: list[BuildResponse], n: int = 0
-    ) -> list[BuildResponse]:
+    def _head(self, builds: list[BuildModel], n: int = 0) -> list[BuildModel]:
         LOG.info("Getting head of builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("n: %s", n)
@@ -75,8 +73,8 @@ class ManipulateBuilds:
         return builds[:n]
 
     def _sort(
-        self, builds: list[BuildResponse], sort_by: SortBy
-    ) -> list[BuildResponse]:
+        self, builds: list[BuildModel], sort_by: SortBy
+    ) -> list[BuildModel]:
         LOG.info("Sorting builds")
         LOG.debug("builds: %s", builds)
         LOG.debug("sort_by: %s", sort_by)
@@ -89,13 +87,13 @@ class ManipulateBuilds:
 
         return data
 
-    def _get_builds(self, week: str = None) -> list[BuildResponse]:
+    def _get_builds(self, week: str = None) -> list[BuildModel]:
         LOG.info("Getting builds from repository")
         LOG.debug("week: %s", week)
 
         return self.build_repository.get_all_builds(week=week)
 
-    def _return_builds_as_json(self, builds: list[BuildResponse]) -> list[dict]:
+    def _return_builds_as_json(self, builds: list[BuildModel]) -> list[dict]:
         LOG.info("Returning builds as json")
         LOG.debug("builds: %s", builds)
 
