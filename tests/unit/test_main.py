@@ -269,22 +269,22 @@ def test_get_builds_filter_item(sample_week):
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(
-                id=1, week=sample_week, pokemon="Pikachu", item="Wise Glasses"
+                id=1, week=sample_week, pokemon="Pikachu", item="Purify"
             ),
             create_build_response(
-                id=2, week=sample_week, pokemon="Snorlax", item="Leftovers"
+                id=2, week=sample_week, pokemon="Snorlax", item="ShedinjaDoll"
             ),
         ]
         mock_repo_class.return_value = mock_repo
 
         # Act
-        response = client.get("/builds?item=Wise Glasses")
+        response = client.get("/builds?item=Purify")
 
         # Assert
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 1
-        assert data[0]["item"] == "Wise Glasses"
+        assert data[0]["item"] == "Purify"
 
 
 def test_get_builds_filter_ignore_item(sample_week):
@@ -294,22 +294,22 @@ def test_get_builds_filter_ignore_item(sample_week):
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(
-                id=1, week=sample_week, pokemon="Pikachu", item="Wise Glasses"
+                id=1, week=sample_week, pokemon="Pikachu", item="Purify"
             ),
             create_build_response(
-                id=2, week=sample_week, pokemon="Snorlax", item="Leftovers"
+                id=2, week=sample_week, pokemon="Snorlax", item="ShedinjaDoll"
             ),
         ]
         mock_repo_class.return_value = mock_repo
 
         # Act
-        response = client.get("/builds?ignore_item=Leftovers")
+        response = client.get("/builds?ignore_item=ShedinjaDoll")
 
         # Assert
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 1
-        assert data[0]["item"] == "Wise Glasses"
+        assert data[0]["item"] == "Purify"
 
 
 def test_get_builds_top_n(sample_week):
