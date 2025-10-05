@@ -507,3 +507,216 @@ def get_sort_criteria_details(
     }
 
     return criteria_info[sort_by_enum]
+
+
+# /ids endpoint
+@app.get(
+    "/ids",
+    response_model=List[int],
+    summary="Get list of all build IDs",
+    description="Returns a list of all build IDs in the database.",
+)
+def get_ids():
+    """Get list of all build IDs"""
+    LOG.info("get_ids")
+    repo = BuildRepository()
+    builds = repo.get_all_builds()
+    return [build.id for build in builds]
+
+
+# /filters endpoints
+@app.get(
+    "/filters",
+    response_model=List[dict],
+    summary="Get list of available filter strategies",
+    description="Returns a list of all available filter strategies for builds.",
+)
+def get_filters():
+    """Get list of available filter strategies"""
+    LOG.info("get_filters")
+    return [
+        {
+            "name": "pokemon",
+            "description": "Filter builds by Pokémon name(s). Accepts comma-separated list.",
+            "type": "include",
+            "example": "pikachu,charizard",
+        },
+        {
+            "name": "role",
+            "description": "Filter builds by role(s). Accepts comma-separated list.",
+            "type": "include",
+            "example": "attacker,defender",
+        },
+        {
+            "name": "item",
+            "description": "Filter builds by item(s). Accepts comma-separated list.",
+            "type": "include",
+            "example": "potion,ejectbutton",
+        },
+        {
+            "name": "ignore_pokemon",
+            "description": "Exclude builds with specific Pokémon name(s). Accepts comma-separated list.",
+            "type": "exclude",
+            "example": "pikachu,charizard",
+        },
+        {
+            "name": "ignore_role",
+            "description": "Exclude builds with specific role(s). Accepts comma-separated list.",
+            "type": "exclude",
+            "example": "attacker,defender",
+        },
+        {
+            "name": "ignore_item",
+            "description": "Exclude builds with specific item(s). Accepts comma-separated list.",
+            "type": "exclude",
+            "example": "potion,ejectbutton",
+        },
+    ]
+
+
+@app.get(
+    "/filters/{filter_name}",
+    response_model=dict,
+    summary="Get details about a specific filter",
+    description="Returns detailed information about the specified filter strategy.",
+)
+def get_filter_details(
+    filter_name: str = Path(..., description="Filter strategy name"),
+):
+    """Get details about a specific filter strategy"""
+    LOG.info("get_filter_details")
+    LOG.debug("filter_name: %s", filter_name)
+
+    # Validate filter
+    if filter_name not in FILTER_STRATEGIES:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Filter '{filter_name}' not found.",
+        )
+
+    filter_info = {
+        "pokemon": {
+            "name": "pokemon",
+            "description": "Filter builds by Pokémon name(s).",
+            "type": "include",
+            "parameter": "pokemon",
+            "value_format": "comma-separated string",
+            "example": "pikachu,charizard,greninja",
+            "usage": "Use this filter to include only builds for specific Pokémon. Multiple Pokémon can be specified separated by commas.",
+        },
+        "role": {
+            "name": "role",
+            "description": "Filter builds by role(s).",
+            "type": "include",
+            "parameter": "role",
+            "value_format": "comma-separated string",
+            "example": "attacker,defender",
+            "usage": "Use this filter to include only builds for specific roles. Multiple roles can be specified separated by commas.",
+            "available_values": [
+                "All-Rounder",
+                "Attacker",
+                "Defender",
+                "Supporter",
+                "Speedster",
+            ],
+        },
+        "item": {
+            "name": "item",
+            "description": "Filter builds by item(s).",
+            "type": "include",
+            "parameter": "item",
+            "value_format": "comma-separated string",
+            "example": "potion,ejectbutton",
+            "usage": "Use this filter to include only builds with specific items. Multiple items can be specified separated by commas.",
+        },
+        "ignore_pokemon": {
+            "name": "ignore_pokemon",
+            "description": "Exclude builds with specific Pokémon name(s).",
+            "type": "exclude",
+            "parameter": "ignore_pokemon",
+            "value_format": "comma-separated string",
+            "example": "pikachu,charizard",
+            "usage": "Use this filter to exclude builds for specific Pokémon. Multiple Pokémon can be specified separated by commas.",
+        },
+        "ignore_role": {
+            "name": "ignore_role",
+            "description": "Exclude builds with specific role(s).",
+            "type": "exclude",
+            "parameter": "ignore_role",
+            "value_format": "comma-separated string",
+            "example": "attacker,defender",
+            "usage": "Use this filter to exclude builds for specific roles. Multiple roles can be specified separated by commas.",
+            "available_values": [
+                "All-Rounder",
+                "Attacker",
+                "Defender",
+                "Supporter",
+                "Speedster",
+            ],
+        },
+        "ignore_item": {
+            "name": "ignore_item",
+            "description": "Exclude builds with specific item(s).",
+            "type": "exclude",
+            "parameter": "ignore_item",
+            "value_format": "comma-separated string",
+            "example": "potion,ejectbutton",
+            "usage": "Use this filter to exclude builds with specific items. Multiple items can be specified separated by commas.",
+        },
+    }
+
+    return filter_info[filter_name]
+
+
+# /logs endpoint
+@app.get(
+    "/logs",
+    response_model=dict,
+    summary="Get API logs summary",
+    description="Returns a summary of API logs and log files available.",
+)
+def get_logs():
+    """Get API logs summary"""
+    LOG.info("get_logs")
+
+    import glob
+    import os
+    from pathlib import Path
+
+    # Get log files from the project root
+    project_root = Path(__file__).parent.parent.parent
+    log_files = glob.glob(str(project_root / "log_*.log"))
+
+    log_info = {
+        "available_logs": [],
+        "description": "API logging information",
+        "note": "Log files are stored in the project root directory",
+    }
+
+    for log_file in sorted(log_files):
+        log_name = os.path.basename(log_file)
+        try:
+            file_size = os.path.getsize(log_file)
+            # Read last few lines
+            with open(log_file, "r") as f:
+                lines = f.readlines()
+                last_lines = lines[-5:] if len(lines) >= 5 else lines
+
+            log_info["available_logs"].append(
+                {
+                    "name": log_name,
+                    "path": log_file,
+                    "size_bytes": file_size,
+                    "last_entries": [line.strip() for line in last_lines],
+                }
+            )
+        except Exception as e:
+            log_info["available_logs"].append(
+                {
+                    "name": log_name,
+                    "path": log_file,
+                    "error": f"Could not read log file: {str(e)}",
+                }
+            )
+
+    return log_info
