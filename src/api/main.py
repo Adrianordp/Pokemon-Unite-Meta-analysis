@@ -50,6 +50,90 @@ def get_pokemon_by_name(name: str = Path(..., description="Pokémon name")):
     return filtered
 
 
+# /roles endpoints
+@app.get(
+    "/roles",
+    response_model=List[str],
+    summary="Get list of available roles",
+    description="Returns a list of all unique roles in the builds database.",
+)
+def get_roles():
+    """Get list of available roles"""
+    LOG.info("get_roles")
+    repo = BuildRepository()
+    builds = repo.get_all_builds()
+    roles = [build.role for build in builds]
+    # Remove duplicates and sort
+    return sorted(list(set(roles)))
+
+
+@app.get(
+    "/roles/{role}",
+    response_model=List[str],
+    summary="Get list of Pokémon for a specific role",
+    description="Returns a list of unique Pokémon names that have the specified role.",
+)
+def get_role_pokemon(role: str = Path(..., description="Role name")):
+    """Get list of Pokémon for a specific role"""
+    LOG.info("get_role_pokemon")
+    LOG.debug("role: %s", role)
+
+    repo = BuildRepository()
+    builds = repo.get_all_builds()
+
+    # Filter builds by role (case-insensitive)
+    filtered = [build for build in builds if build.role.lower() == role.lower()]
+
+    if not filtered:
+        raise HTTPException(status_code=404, detail=f"Role '{role}' not found.")
+
+    # Get unique Pokémon names for this role
+    pokemon_names = [build.pokemon for build in filtered]
+    return sorted(list(set(pokemon_names)))
+
+
+# /items endpoints
+@app.get(
+    "/items",
+    response_model=List[str],
+    summary="Get list of available items",
+    description="Returns a list of all unique items in the builds database.",
+)
+def get_items():
+    """Get list of available items"""
+    LOG.info("get_items")
+    repo = BuildRepository()
+    builds = repo.get_all_builds()
+    items = [build.item for build in builds]
+    # Remove duplicates and sort
+    return sorted(list(set(items)))
+
+
+@app.get(
+    "/items/{name}",
+    response_model=List[str],
+    summary="Get list of Pokémon that use a specific item",
+    description="Returns a list of unique Pokémon names that use the specified item.",
+)
+def get_item_pokemon(name: str = Path(..., description="Item name")):
+    """Get list of Pokémon that use a specific item"""
+    LOG.info("get_item_pokemon")
+    LOG.debug("name: %s", name)
+
+    repo = BuildRepository()
+    builds = repo.get_all_builds()
+
+    # Filter builds by item (case-insensitive)
+    filtered = [build for build in builds if build.item.lower() == name.lower()]
+
+    if not filtered:
+        raise HTTPException(status_code=404, detail=f"Item '{name}' not found.")
+
+    # Get unique Pokémon names that use this item
+    pokemon_names = [build.pokemon for build in filtered]
+    return sorted(list(set(pokemon_names)))
+
+
 @app.get(
     "/",
     summary="API root endpoint",
