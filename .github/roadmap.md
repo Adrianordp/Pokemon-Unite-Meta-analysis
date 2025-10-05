@@ -46,9 +46,9 @@
 
 ### IDs, Weeks, Filters, Logs Endpoints (`feature/meta-endpoints`)
 - [x] Create branch `feature/meta-endpoints`
-- [ ] Implement `/ids`, `/weeks`, `/filters`, `/filters/{filter_name}`, `/logs` endpoints
-- [ ] Write integration tests for these endpoints
-- [ ] Document endpoints
+- [x] Implement `/ids`, `/weeks`, `/filters`, `/filters/{filter_name}`, `/logs` endpoints
+- [x] Write integration tests for these endpoints
+- [x] Document endpoints
 
 ### Continuous Integration/Deployment (`feature/api-ci-cd`)
 - [ ] Create branch `feature/api-ci-cd`
