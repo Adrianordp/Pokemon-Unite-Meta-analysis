@@ -33,7 +33,7 @@ Note that the _create_table method is prefixed with an underscore, indicating
 import os
 import sqlite3
 
-from entity.build_response import BuildResponse
+from entity.build_model import BuildModel
 from util.log import setup_custom_logger
 
 LOG = setup_custom_logger("log_repository")
@@ -135,12 +135,12 @@ class BuildRepository:
 
         self.conn.commit()
 
-    def create(self, build: BuildResponse, week: str, commit=True) -> bool:
+    def create(self, build: BuildModel, week: str, commit=True) -> bool:
         """
         Create a new build
 
         Args:
-            build (BuildResponse): The build to create
+            build (BuildModel): The build to create
             week (str): The week identifier for the table name
             commit (bool, optional): Whether to commit the changes. Defaults to
                 True.
@@ -188,11 +188,11 @@ class BuildRepository:
             LOG.error("SQLite error creating build: %s", error)
             return False
 
-        LOG.info("BuildResponse inserted successfully")
+        LOG.info("BuildModel inserted successfully")
 
         return True
 
-    def get_all_builds(self, week: str = None) -> list[BuildResponse]:
+    def get_all_builds(self, week: str = None) -> list[BuildModel]:
         """
         Get all builds
 
@@ -201,7 +201,7 @@ class BuildRepository:
                 to None.
 
         Returns:
-            list[BuildResponse]: List of builds
+            list[BuildModel]: List of builds
         """
         LOG.info("get_all_builds")
         LOG.debug("week: %s", week)
@@ -215,7 +215,7 @@ class BuildRepository:
         LOG.debug("query: %s", query)
 
         return [
-            BuildResponse(
+            BuildModel(
                 id=build[0],
                 week=build[1],
                 pokemon=build[2],

@@ -1,16 +1,15 @@
 """
-Pydantic response model for Build API responses
+Pydantic model for Build database entity
 """
 
 from pydantic import BaseModel
 
 
-class BuildResponse(BaseModel):
+class BuildModel(BaseModel):
     """
-    Pydantic response model for Build API responses
+    Pydantic model for Build database entity
 
-    This model extends the database build model with computed fields for API
-    responses.
+    This model represents the structure of builds as stored in the database.
 
     Attributes:
         id: The unique identifier for the build.
@@ -29,10 +28,6 @@ class BuildResponse(BaseModel):
         moveset_item_pick_rate: The pick rate of the moveset with the item.
         moveset_item_true_pick_rate: The true pick rate of the moveset with
             the item.
-        popularity: The ordinal position within the week based on
-            moveset_item_true_pick_rate (1 = most popular).
-        rank: The ordinal position within the current result set based on the
-            specified sorting method (1 = first in sorted results).
     """
 
     id: int
@@ -50,5 +45,3 @@ class BuildResponse(BaseModel):
     moveset_item_win_rate: float
     moveset_item_pick_rate: float
     moveset_item_true_pick_rate: float
-    popularity: int
-    rank: int

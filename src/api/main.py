@@ -4,6 +4,7 @@ from fastapi import Depends, FastAPI, HTTPException, Path
 
 from api.config import settings
 from api.custom_log import LOG
+from entity.build_model import BuildModel
 from entity.build_response import BuildResponse
 from entity.builds_query_params import BuildsQueryParams
 from pokemon_unite_meta_analysis.filter_strategy import FILTER_STRATEGIES
@@ -15,6 +16,81 @@ from pokemon_unite_meta_analysis.sort_strategy import SORT_STRATEGIES, SortBy
 from repository.build_repository import BuildRepository
 
 app = FastAPI(title=settings.api_name, debug=settings.debug)
+
+
+def _calculate_popularity_ranks(
+    builds: List[BuildModel], week: str = None
+) -> dict[int, int]:
+    """
+    Calculate popularity ranks for builds based on moveset_item_true_pick_rate.
+
+    Args:
+        builds: List of builds to calculate popularity for
+        week: Optional week filter for calculating popularity within a week
+
+    Returns:
+        Dictionary mapping build ID to popularity rank (1 = most popular)
+    """
+    # Get all builds for the week to calculate popularity
+    repo = BuildRepository()
+    week_builds = repo.get_all_builds(week=week)
+
+    # Sort by moveset_item_true_pick_rate descending to get popularity order
+    sorted_by_popularity = sorted(
+        week_builds, key=lambda b: b.moveset_item_true_pick_rate, reverse=True
+    )
+
+    # Create mapping of build ID to popularity rank
+    popularity_map = {
+        build.id: idx + 1 for idx, build in enumerate(sorted_by_popularity)
+    }
+
+    return popularity_map
+
+
+def _convert_to_build_response(
+    builds: List[BuildModel], week: str = None
+) -> List[BuildResponse]:
+    """
+    Convert BuildModel instances to BuildResponse with computed fields.
+
+    Args:
+        builds: List of BuildModel instances from database
+        week: Optional week for popularity calculation
+
+    Returns:
+        List of BuildResponse instances with popularity and rank fields
+    """
+    # Calculate popularity ranks for all builds in the week
+    popularity_map = _calculate_popularity_ranks(builds, week)
+
+    # Convert to BuildResponse with rank (position in current result set)
+    # and popularity (position within week by moveset_item_true_pick_rate)
+    responses = []
+    for idx, build in enumerate(builds):
+        responses.append(
+            BuildResponse(
+                id=build.id,
+                week=build.week,
+                pokemon=build.pokemon,
+                role=build.role,
+                pokemon_win_rate=build.pokemon_win_rate,
+                pokemon_pick_rate=build.pokemon_pick_rate,
+                move_1=build.move_1,
+                move_2=build.move_2,
+                moveset_win_rate=build.moveset_win_rate,
+                moveset_pick_rate=build.moveset_pick_rate,
+                moveset_true_pick_rate=build.moveset_true_pick_rate,
+                item=build.item,
+                moveset_item_win_rate=build.moveset_item_win_rate,
+                moveset_item_pick_rate=build.moveset_item_pick_rate,
+                moveset_item_true_pick_rate=build.moveset_item_true_pick_rate,
+                popularity=popularity_map.get(build.id, 0),
+                rank=idx + 1,
+            )
+        )
+
+    return responses
 
 
 # /pokemon endpoints
@@ -47,7 +123,7 @@ def get_pokemon_by_name(name: str = Path(..., description="Pokémon name")):
         raise HTTPException(
             status_code=404, detail=f"Pokémon '{name}' not found."
         )
-    return filtered
+    return _convert_to_build_response(filtered)
 
 
 # /roles endpoints
@@ -281,7 +357,7 @@ def get_builds(params: BuildsQueryParams = Depends()):
     if params.id is not None:
         if params.id < 0 or params.id >= len(builds):
             raise HTTPException(status_code=404, detail="Build ID not found")
-        return [builds[params.id]]
+        return _convert_to_build_response([builds[params.id]], week)
 
     # Validate and map relevance
     try:
@@ -334,8 +410,8 @@ def get_builds(params: BuildsQueryParams = Depends()):
     if params.top_n is not None and params.top_n > 0:
         builds = builds[: params.top_n]
 
-    # Convert to response model
-    return [BuildResponse(**b.__dict__) for b in builds]
+    # Convert to response model with computed popularity and rank fields
+    return _convert_to_build_response(builds, week)
 
 
 # /relevance endpoints
