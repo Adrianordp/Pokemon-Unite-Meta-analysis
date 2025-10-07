@@ -55,13 +55,15 @@ def colorize_role(text: str) -> str:
     return text
 
 
-# def get_builds(params: Optional[Dict[str, Any]] = None) -> None:
 def get_builds(
     params: Optional[Dict[str, Any]] = None,
     include: Optional[list] = None,
     exclude: Optional[list] = None,
 ) -> None:
-    """Fetch builds from the API with optional query params and print colorized output using pandas DataFrame. Allows column selection."""
+    """
+    Fetch builds from the API with optional query params and print colorized
+    output using pandas DataFrame. Allows column selection.
+    """
     try:
         response = httpx.get(f"{API_BASE_URL}/builds", params=params)
         response.raise_for_status()
@@ -117,6 +119,7 @@ def get_builds(
 
 
 def main():
+    """Main CLI entry point."""
     parser = argparse.ArgumentParser(
         description="Pokemon Unite Meta Analysis CLI"
     )
