@@ -5,7 +5,10 @@ description = "Backend to expose Pokemon Unite data analysis via API"
 authors = [{ name = "Adriano Rodrigues", email = "adrianordp1@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.13,<4.0"
-dependencies = ["fastapi (>=0.116.1,<0.117.0)", "pandas (>=2.3.2,<3.0.0)", "pydantic-settings (>=2.11.0,<3.0.0)", "httpx (>=0.28.1,<0.29.0)"]
+dependencies = ["fastapi (>=0.116.1,<0.117.0)", "pandas (>=2.3.2,<3.0.0)", "pydantic-settings (>=2.11.0,<3.0.0)", "httpx (>=0.28.1,<0.29.0)", "streamlit (>=1.50.0,<2.0.0)"]
+
+[project.scripts]
+pkmn-unite-cli = "cli.main:main"
 
 [tool.poetry]
 include = ["src/**"]
@@ -32,7 +35,8 @@ line-length = 80
 test = "pytest -v"
 lint = "ruff check ."
 run = "python -m src.pokemon_unite_meta_analysis"
-coverage = "coverage run -m pytest && coverage report -m && coverage html"
+coverage = "coverage run -m pytest --cov=src/ && coverage report -m && coverage html"
+cli = "python -m cli"
 
 [tool.coverage.run]
 omit = [
