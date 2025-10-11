@@ -37,16 +37,15 @@ def print_sorted_data():
     convention.
     """
 
-    build_repository = BuildRepository()
+    with BuildRepository() as build_repository:
+        weeks = build_repository.get_available_weeks()
+        week = weeks[0]
 
-    weeks = build_repository.get_available_weeks()
-    week = weeks[0]
-
-    # query builds of builds table for given week
-    builds_query = pd.read_sql_query(
-        f"SELECT * FROM builds WHERE week = '{week}'",
-        build_repository.conn,
-    )
+        # query builds of builds table for given week
+        builds_query = pd.read_sql_query(
+            f"SELECT * FROM builds WHERE week = '{week}'",
+            build_repository.conn,
+        )
 
     builds = builds_query.sort_values(
         "moveset_item_true_pick_rate", ascending=False

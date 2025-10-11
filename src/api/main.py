@@ -32,8 +32,8 @@ def _calculate_popularity_ranks(
         Dictionary mapping build ID to popularity rank (1 = most popular)
     """
     # Get all builds for the week to calculate popularity
-    repo = BuildRepository()
-    week_builds = repo.get_all_builds(week=week)
+    with BuildRepository() as repo:
+        week_builds = repo.get_all_builds(week=week)
 
     # Sort by moveset_item_true_pick_rate descending to get popularity order
     sorted_by_popularity = sorted(
@@ -101,8 +101,8 @@ def _convert_to_build_response(
     description="Returns a list of all unique Pokémon names in the builds database.",
 )
 def get_pokemon():
-    repo = BuildRepository()
-    pokemons = repo.get_all_pokemons_by_table("builds")
+    with BuildRepository() as repo:
+        pokemons = repo.get_all_pokemons_by_table("builds")
     # Remove duplicates and sort
     return sorted(list(set(pokemons)))
 
@@ -114,8 +114,8 @@ def get_pokemon():
     description="Returns all builds for the specified Pokémon name.",
 )
 def get_pokemon_by_name(name: str = Path(..., description="Pokémon name")):
-    repo = BuildRepository()
-    builds = repo.get_all_builds()
+    with BuildRepository() as repo:
+        builds = repo.get_all_builds()
     filtered = [
         build for build in builds if build.pokemon.lower() == name.lower()
     ]
@@ -136,8 +136,8 @@ def get_pokemon_by_name(name: str = Path(..., description="Pokémon name")):
 def get_roles():
     """Get list of available roles"""
     LOG.info("get_roles")
-    repo = BuildRepository()
-    builds = repo.get_all_builds()
+    with BuildRepository() as repo:
+        builds = repo.get_all_builds()
     roles = [build.role for build in builds]
     # Remove duplicates and sort
     return sorted(list(set(roles)))
@@ -154,8 +154,8 @@ def get_role_pokemon(role: str = Path(..., description="Role name")):
     LOG.info("get_role_pokemon")
     LOG.debug("role: %s", role)
 
-    repo = BuildRepository()
-    builds = repo.get_all_builds()
+    with BuildRepository() as repo:
+        builds = repo.get_all_builds()
 
     # Filter builds by role (case-insensitive)
     filtered = [build for build in builds if build.role.lower() == role.lower()]
@@ -178,8 +178,8 @@ def get_role_pokemon(role: str = Path(..., description="Role name")):
 def get_items():
     """Get list of available items"""
     LOG.info("get_items")
-    repo = BuildRepository()
-    builds = repo.get_all_builds()
+    with BuildRepository() as repo:
+        builds = repo.get_all_builds()
     items = [build.item for build in builds]
     # Remove duplicates and sort
     return sorted(list(set(items)))
@@ -196,8 +196,8 @@ def get_item_pokemon(name: str = Path(..., description="Item name")):
     LOG.info("get_item_pokemon")
     LOG.debug("name: %s", name)
 
-    repo = BuildRepository()
-    builds = repo.get_all_builds()
+    with BuildRepository() as repo:
+        builds = repo.get_all_builds()
 
     # Filter builds by item (case-insensitive)
     filtered = [build for build in builds if build.item.lower() == name.lower()]
@@ -258,8 +258,8 @@ def health_check():
 )
 def get_weeks():
     """Get list of available weeks"""
-    repo = BuildRepository()
-    return repo.get_available_weeks()
+    with BuildRepository() as repo:
+        return repo.get_available_weeks()
 
 
 # /builds endpoint with improved validation and error handling
@@ -337,20 +337,20 @@ def get_builds(params: BuildsQueryParams = Depends()):
     LOG.debug("ignore_role: %s", params.ignore_role)
     LOG.debug("top_n: %s", params.top_n)
 
-    repo = BuildRepository()
+    with BuildRepository() as repo:
+        week = None
 
-    week = None
+        if params.week is not None:
+            available_weeks = repo.get_available_weeks()
+            if params.week not in available_weeks:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid week: {params.week}. Available weeks: {available_weeks}",
+                )
+            week = params.week
 
-    if params.week is not None:
-        available_weeks = repo.get_available_weeks()
-        if params.week not in available_weeks:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid week: {params.week}. Available weeks: {available_weeks}",
-            )
-        week = params.week
+        all_builds = repo.get_all_builds(week=week)
 
-    all_builds = repo.get_all_builds(week=week)
     builds = all_builds.copy()
 
     # Direct ID lookup
@@ -679,8 +679,8 @@ def get_sort_criteria_details(
 def get_ids():
     """Get list of all build IDs"""
     LOG.info("get_ids")
-    repo = BuildRepository()
-    builds = repo.get_all_builds()
+    with BuildRepository() as repo:
+        builds = repo.get_all_builds()
     return [build.id for build in builds]
 
 

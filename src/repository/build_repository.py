@@ -56,6 +56,8 @@ class BuildRepository:
         LOG.debug("table_name: %s", table_name)
         LOG.debug("conn: %s", conn)
 
+        self._owns_connection = conn is None
+
         if conn is None:
             LOG.warning("No connection provided, creating a new one")
             db_path = os.environ.get("BUILDS_DB_PATH", "builds.db")
@@ -65,6 +67,42 @@ class BuildRepository:
         self.conn: sqlite3.Connection = conn
         self.cursor: sqlite3.Cursor = self.conn.cursor()
         self.table_name: str = "builds"
+
+    def __enter__(self):
+        """Context manager entry"""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit"""
+        self.close()
+        return False
+
+    def close(self) -> None:
+        """
+        Close the database connection if this instance owns it
+        """
+        if self._owns_connection and self.conn:
+            LOG.info("Closing database connection")
+            try:
+                self.conn.close()
+            except Exception as e:
+                # Silently ignore errors during cleanup
+                # (e.g., thread-safety issues with SQLite)
+                LOG.debug("Error closing connection: %s", e)
+            finally:
+                self.conn = None
+                self.cursor = None
+
+    def __del__(self):
+        """
+        Destructor to ensure connection is closed
+        """
+        try:
+            self.close()
+        except Exception:
+            # Silently ignore any errors during cleanup
+            # This can happen if the connection was created in a different thread
+            pass
 
     def set_table_name(self, table_name) -> None:
         """
