@@ -6,8 +6,29 @@ import streamlit as st
 # API Base URL
 API_BASE = "http://localhost:8000"
 
+# Role color mapping (similar to CLI but using hex colors for CSS)
+ROLE_COLORS = {
+    "Support": "#ff9800",  # Orange (ANSI 214)
+    "Attacker": "#d32f2f",  # Red (ANSI 1)
+    "Speedster": "#1976d2",  # Blue (ANSI 4)
+    "Defender": "#388e3c",  # Green (ANSI 2)
+    "All-Rounder": "#7b1fa2",  # Purple (ANSI 93)
+}
+
 st.set_page_config(layout="wide", page_title="Pokémon Unite Meta Dashboard")
 st.title("Pokémon Unite Meta Dashboard")
+
+
+def colorize_by_role(row):
+    """
+    Apply role-based coloring to DataFrame rows.
+    Returns a list of CSS styles for each cell in the row.
+    """
+    role = row.get("role", "")
+    color = ROLE_COLORS.get(
+        role, "#000000"
+    )  # Default to black if role not found
+    return [f"color: {color}" for _ in row]
 
 
 # Fetch metadata from API
@@ -232,7 +253,11 @@ if response.status_code == 200:
     )
 
     st.subheader(f"Builds ({len(data)} results)")
-    st.dataframe(data, hide_index=True)
+
+    # Apply role-based coloring to the dataframe
+    styled_data = data.style.apply(colorize_by_role, axis=1)
+
+    st.dataframe(styled_data, hide_index=True)
 else:
     st.error(f"Failed to load data: {response.status_code} - {response.text}")
     st.stop()
