@@ -177,15 +177,15 @@ def main():
     LOG.info("Running manipulate builds")
 
     date = "Y2025m08d03"
-    build_repository = BuildRepository()
-    manipulate_builds = ManipulateBuilds(build_repository, date)
-    manipulate_builds.run(
-        SortBy.MOVESET_ITEM_WIN_RATE,
-        50,
-        "moveset_item_true_pr",
-        2,
-        True,
-    )
+    with BuildRepository() as build_repository:
+        manipulate_builds = ManipulateBuilds(build_repository, date)
+        manipulate_builds.run(
+            SortBy.MOVESET_ITEM_WIN_RATE,
+            50,
+            "moveset_item_true_pr",
+            2,
+            True,
+        )
 
 
 if __name__ == "__main__":

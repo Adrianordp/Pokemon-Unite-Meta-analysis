@@ -8,6 +8,14 @@ from api.main import app
 client = TestClient(app)
 
 
+def _create_mock_repository():
+    """Helper to create a mock repository with context manager support"""
+    mock = MagicMock()
+    mock.__enter__ = MagicMock(return_value=mock)
+    mock.__exit__ = MagicMock(return_value=False)
+    return mock
+
+
 def test_read_root():
     # Arrange & Act
     response = client.get("/")
@@ -34,7 +42,7 @@ def test_health_check():
 def test_get_weeks():
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [
             "Y2025m09d28",
             "Y2025m10d05",
@@ -55,7 +63,7 @@ def test_get_weeks():
 def test_get_builds_default(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
@@ -78,7 +86,7 @@ def test_get_builds_default(sample_week):
 def test_get_builds_by_id(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
@@ -100,7 +108,7 @@ def test_get_builds_by_id(sample_week):
 def test_get_builds_by_week(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [
             sample_week,
             "Y2025m10d05",
@@ -124,7 +132,7 @@ def test_get_builds_by_week(sample_week):
 def test_get_builds_invalid_week(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo_class.return_value = mock_repo
 
@@ -139,7 +147,7 @@ def test_get_builds_invalid_week(sample_week):
 def test_get_builds_invalid_strategy(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(id=1, week=sample_week),
@@ -156,7 +164,7 @@ def test_get_builds_invalid_strategy(sample_week):
 def test_get_builds_invalid_relevance(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(id=1, week=sample_week),
@@ -173,7 +181,7 @@ def test_get_builds_invalid_relevance(sample_week):
 def test_get_builds_filter_pokemon(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
@@ -194,7 +202,7 @@ def test_get_builds_filter_pokemon(sample_week):
 def test_get_builds_filter_ignore_pokemon(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(id=1, week=sample_week, pokemon="Pikachu"),
@@ -215,7 +223,7 @@ def test_get_builds_filter_ignore_pokemon(sample_week):
 def test_get_builds_filter_role(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(
@@ -240,7 +248,7 @@ def test_get_builds_filter_role(sample_week):
 def test_get_builds_filter_ignore_role(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(
@@ -265,7 +273,7 @@ def test_get_builds_filter_ignore_role(sample_week):
 def test_get_builds_filter_item(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(
@@ -290,7 +298,7 @@ def test_get_builds_filter_item(sample_week):
 def test_get_builds_filter_ignore_item(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(
@@ -315,7 +323,7 @@ def test_get_builds_filter_ignore_item(sample_week):
 def test_get_builds_top_n(sample_week):
     # Arrange
     with patch("api.main.BuildRepository") as mock_repo_class:
-        mock_repo = MagicMock()
+        mock_repo = _create_mock_repository()
         mock_repo.get_available_weeks.return_value = [sample_week]
         mock_repo.get_all_builds.return_value = [
             create_build_response(id=i, week=sample_week, pokemon=f"Pokemon{i}")
