@@ -193,10 +193,6 @@ class CumulativeCoverageRelevanceStrategy:
             LOG.warning("Threshold <= 0.0, returning no builds")
             return []
 
-        if threshold > 100.0:
-            LOG.warning("Threshold > 100.0, returning all builds")
-            return builds
-
         sorted_builds = sorted(
             get_builds(),
             key=lambda build: build.moveset_item_true_pick_rate,
