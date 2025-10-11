@@ -39,73 +39,38 @@ if response.status_code == 200:
 else:
     st.error("Failed to load data")
 
-# Example: visualize two columns
+# Interactive visualization
 if not data.empty:
-    # X-axis: rank
+    st.subheader("Interactive Visualization")
+
+    # Create two columns for the dropdowns
+    col1, col2 = st.columns(2)
+
+    with col1:
+        x_axis = st.selectbox(
+            "Select X-axis",
+            options=data.columns.tolist(),
+            index=data.columns.tolist().index("rank"),
+        )
+
+    with col2:
+        y_axis = st.selectbox(
+            "Select Y-axis",
+            options=data.columns.tolist(),
+            index=data.columns.tolist().index("build win rate"),
+        )
+
+    # Create the scatter plot with selected axes
     fig = px.scatter(
         data,
-        x="rank",
-        y="pokemon win rate",
-        title="Rank vs Pokémon Win Rate",
+        x=x_axis,
+        y=y_axis,
+        title=f"{x_axis} vs {y_axis}",
+        hover_data=["pokemon", "rank"],
     )
-    st.plotly_chart(fig, config={"scrollable": False})
 
-    fig = px.scatter(
-        data,
-        x="rank",
-        y="pokemon pick rate",
-        title="Rank vs Pokémon Pick Rate",
-    )
-    st.plotly_chart(fig, config={"scrollable": False})
+    # Rotate x-axis labels if x-axis is categorical (e.g., pokemon names)
+    if x_axis in ("pokemon", "move 1", "move 2", "item"):
+        fig.update_xaxes(tickangle=-90)
 
-    fig = px.scatter(
-        data,
-        x="rank",
-        y="build win rate",
-        title="Rank vs Build Win Rate",
-    )
-    st.plotly_chart(fig, config={"scrollable": False})
-
-    fig = px.scatter(
-        data,
-        x="rank",
-        y="build pick rate",
-        title="Rank vs Build Pick Rate",
-    )
-    st.plotly_chart(fig, config={"scrollable": False})
-
-    # X-axis: pokemon
-
-    fig = px.scatter(
-        data,
-        x="pokemon",
-        y="pokemon win rate",
-        title="Pokémon vs Pokémon Win Rate",
-    )
-    st.plotly_chart(fig, config={"scrollable": False})
-
-    fig = px.scatter(
-        data,
-        x="pokemon",
-        y="pokemon pick rate",
-        title="Pokémon vs Pokémon Pick Rate",
-    )
-    fig.update_xaxes(tickangle=-90)
-    st.plotly_chart(fig, config={"scrollable": False})
-
-    fig = px.scatter(
-        data,
-        x="pokemon",
-        y="build win rate",
-        title="Pokémon vs Build Win Rate",
-    )
-    st.plotly_chart(fig, config={"scrollable": False})
-
-    fig = px.scatter(
-        data,
-        x="pokemon",
-        y="build pick rate",
-        title="Pokémon vs Build Pick Rate",
-    )
-    fig.update_xaxes(tickangle=-90)
-    st.plotly_chart(fig, config={"scrollable": False})
+    st.plotly_chart(fig, use_container_width=True)
