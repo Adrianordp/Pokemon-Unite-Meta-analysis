@@ -40,6 +40,13 @@ Python package and uses Poetry for dependency management.
    ```
 5. Access the API documentation at `http://localhost:8000/docs`
 
+## Run frontend (optional)
+To run the Streamlit dashboard for visualizing the data, use:
+
+```
+poetry run streamlit run src/dashboard/dashboard.py
+```
+
 ## Database Structure
 
 - All builds are stored in a single table: `builds`
