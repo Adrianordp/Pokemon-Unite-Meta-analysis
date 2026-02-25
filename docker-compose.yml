@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   api:
     build:
@@ -7,7 +5,7 @@ services:
       dockerfile: Dockerfile.api
     container_name: pokemon-unite-api
     environment:
-      - API_HOST=api
+      - API_HOST=0.0.0.0
       - API_PORT=8050
     ports:
       - "8050:8050"
@@ -21,7 +19,7 @@ services:
     depends_on:
       - api
     environment:
-      - API_HOST=api
+      - API_HOST=0.0.0.0
       - API_PORT=8050
     ports:
       - "8501:8501"
