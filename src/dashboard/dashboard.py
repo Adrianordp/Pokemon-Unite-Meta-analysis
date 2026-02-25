@@ -85,6 +85,7 @@ def colorize_by_role(row, theme_mode: str):
 @st.cache_data(ttl=300)  # Cache for 5 minutes
 def fetch_metadata():
     """Fetch all metadata from the API"""
+
     try:
         weeks = httpx.get(f"{API_BASE}/weeks").json()
         pokemon = httpx.get(f"{API_BASE}/pokemon").json()
