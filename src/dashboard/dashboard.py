@@ -381,4 +381,4 @@ if not data.empty:
     if x_axis in ("pokemon", "move 1", "move 2", "item"):
         fig.update_xaxes(tickangle=-90)
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
