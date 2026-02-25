@@ -3,8 +3,10 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from api.config import settings
+
 # API Base URL
-API_BASE = "http://localhost:8000"
+API_BASE = f"http://{settings.host}:{settings.port}"
 
 # Role color mapping (similar to CLI but using hex colors for CSS)
 ROLE_COLORS = {
