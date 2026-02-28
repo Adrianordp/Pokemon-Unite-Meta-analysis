@@ -9,6 +9,7 @@ services:
       - API_PORT=8050
     ports:
       - "8050:8050"
+    image: ghcr.io/adrianordp/pokemon_unite_analysis_api:v0.1.0
 
   dashboard:
     restart: unless-stopped
@@ -23,3 +24,4 @@ services:
       - API_PORT=8050
     ports:
       - "8501:8501"
+    image: ghcr.io/adrianordp/pokemon_unite_analysis_dashboard:v0.1.0
