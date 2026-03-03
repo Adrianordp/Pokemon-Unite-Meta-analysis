@@ -17,11 +17,12 @@ RUN pip install --no-cache-dir poetry
 # Copy project files
 COPY pyproject.toml ./
 COPY src ./src
-# Copy database file if it exists (for development/testing)
-COPY builds.db ./
 
 # Install only dependencies; project code is imported via PYTHONPATH=/app/src
 RUN poetry install --without dev --no-root
+
+# Copy database file if it exists (for development/testing)
+COPY builds.db ./
 
 # Default API config for container networking
 ENV API_HOST=api \
