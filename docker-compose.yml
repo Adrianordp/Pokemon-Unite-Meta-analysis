@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.api
     container_name: pokemon-unite-api
+    restart: unless-stopped
     environment:
       - API_HOST=api
       - API_PORT=8050
@@ -12,11 +13,11 @@ services:
     image: ghcr.io/adrianordp/pokemon_unite_analysis_api:latest
 
   dashboard:
-    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile.dashboard
     container_name: pokemon-unite-dashboard
+    restart: unless-stopped
     depends_on:
       - api
     environment:
