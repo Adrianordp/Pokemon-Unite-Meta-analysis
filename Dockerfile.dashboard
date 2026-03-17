@@ -22,11 +22,11 @@ COPY src ./src
 # Install project (includes streamlit, httpx, pandas, plotly, etc.)
 RUN poetry install --without dev --no-root
 
-EXPOSE 8501
-
 # API base URL for the dashboard (talks to the api service)
 ENV API_HOST=localhost \
     API_PORT=8000
+
+EXPOSE 8501
 
 CMD [ \
     "poetry", "run", \
