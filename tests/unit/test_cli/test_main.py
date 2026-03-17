@@ -253,7 +253,8 @@ class TestGetBuilds:
             "relevance_threshold": 10,
             "sort_by": "moveset_item_win_rate",
         }
-        get_builds(params=params)
+        with patch("cli.main.API_BASE_URL", "http://localhost:8000"):
+            get_builds(params=params)
 
         out = capsys.readouterr().out
         assert "Pikachu" in out
