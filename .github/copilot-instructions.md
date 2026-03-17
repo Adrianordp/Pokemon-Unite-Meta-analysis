@@ -44,7 +44,7 @@ automated testing and deployment
 direction
 
 ## Developer Workflows
-- **Start Dev Server**: `poetry run uvicorn main:app --reload`
+- **Start Dev Server**: `poetry run uvicorn api.main:app --reload`
 - **Run Unit Tests**: `poetry run pytest tests/unit`
 - **Run Integration Tests**: `poetry run pytest tests/integration`
 - **Run E2E Tests**: `poetry run pytest tests/e2e`

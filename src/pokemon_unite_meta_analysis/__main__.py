@@ -37,15 +37,15 @@ def print_sorted_data():
     convention.
     """
 
-    build_repository = BuildRepository()
+    with BuildRepository() as build_repository:
+        weeks = build_repository.get_available_weeks()
+        week = weeks[0]
 
-    tables = build_repository.get_table_names()
-    table = tables[-1]
-    build_repository.set_table_name(table)
-    # builds_query = build_repository.get_all_builds()
-    builds_query = pd.read_sql_query(
-        f"SELECT * FROM {build_repository.table_name}", build_repository.conn
-    )
+        # query builds of builds table for given week
+        builds_query = pd.read_sql_query(
+            f"SELECT * FROM builds WHERE week = '{week}'",
+            build_repository.conn,
+        )
 
     builds = builds_query.sort_values(
         "moveset_item_true_pick_rate", ascending=False
@@ -57,7 +57,7 @@ def print_sorted_data():
 
     threshold = builds.tail(1)["moveset_item_true_pick_rate"].iloc[0]
     # print(builds)
-    print(f"Top {n_builds} builds from table {table}. Threshold: {threshold}")
+    print(f"Top {n_builds} builds from table {week}. Threshold: {threshold}")
 
     # builds = builds.sort_values("moveset_item_true_pick_rate", ascending=False)
     builds = builds.sort_values("moveset_item_win_rate", ascending=False)
@@ -65,7 +65,7 @@ def print_sorted_data():
     builds_sorted = builds.reset_index()
     builds_sorted.index = builds_sorted.index + 1
     # remove columns index and id
-    builds_sorted = builds_sorted.drop(columns=["index", "id"])
+    builds_sorted = builds_sorted.drop(columns=["index", "id", "week"])
 
     # rename columns
     builds_sorted = builds_sorted.rename(

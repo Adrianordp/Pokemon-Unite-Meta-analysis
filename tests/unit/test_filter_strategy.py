@@ -27,7 +27,7 @@ def sample_builds(sample_week):
             moveset_win_rate=52.0,
             moveset_pick_rate=18.0,
             moveset_true_pick_rate=17.0,
-            item="Wise Glasses",
+            item="Purify",
             moveset_item_win_rate=53.0,
             moveset_item_pick_rate=15.0,
             moveset_item_true_pick_rate=14.0,
@@ -44,7 +44,7 @@ def sample_builds(sample_week):
             moveset_win_rate=48.0,
             moveset_pick_rate=13.0,
             moveset_true_pick_rate=12.0,
-            item="Leftovers",
+            item="ShedinjaDoll",
             moveset_item_win_rate=49.0,
             moveset_item_pick_rate=10.0,
             moveset_item_true_pick_rate=9.0,
@@ -61,7 +61,7 @@ def sample_builds(sample_week):
             moveset_win_rate=58.0,
             moveset_pick_rate=22.0,
             moveset_true_pick_rate=21.0,
-            item="Muscle Band",
+            item="XSpeed",
             moveset_item_win_rate=59.0,
             moveset_item_pick_rate=20.0,
             moveset_item_true_pick_rate=19.0,
@@ -115,11 +115,11 @@ def test_item_filter_strategy(sample_builds):
     strategy = ItemFilterStrategy()
 
     # Act
-    filtered = strategy.apply(sample_builds, "Wise Glasses, Muscle Band")
+    filtered = strategy.apply(sample_builds, "Purify, XSpeed")
 
     # Assert
     assert len(filtered) == 2
-    assert all(b.item in ["Wise Glasses", "Muscle Band"] for b in filtered)
+    assert all(b.item in ["Purify", "XSpeed"] for b in filtered)
 
 
 def test_ignore_pokemon_filter_strategy(sample_builds):
@@ -151,11 +151,11 @@ def test_ignore_item_filter_strategy(sample_builds):
     strategy = IgnoreItemFilterStrategy()
 
     # Act
-    filtered = strategy.apply(sample_builds, "Leftovers")
+    filtered = strategy.apply(sample_builds, "ShedinjaDoll")
 
     # Assert
     assert len(filtered) == 2
-    assert all(b.item != "Leftovers" for b in filtered)
+    assert all(b.item != "ShedinjaDoll" for b in filtered)
 
 
 def test_empty_value_returns_all(sample_builds):

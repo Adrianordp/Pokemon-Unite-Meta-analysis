@@ -19,7 +19,7 @@ def test_create_and_retrieve_build(build_repository, sample_week):
         moveset_win_rate=0.53,
         moveset_pick_rate=0.14,
         moveset_true_pick_rate=0.09,
-        item="Muscle Band",
+        item="XSpeed",
         moveset_item_win_rate=0.54,
         moveset_item_pick_rate=0.11,
         moveset_item_true_pick_rate=0.07,
@@ -49,11 +49,15 @@ def test_set_table_name():
 
 def test_get_table_names_returns_empty_on_error():
     # Arrange
-    repo = BuildRepository(conn=sqlite3.connect(":memory:"))
+    conn = sqlite3.connect(":memory:")
+    repo = BuildRepository(conn=conn)
 
     # No sqlite_sequence table in a fresh in-memory DB
     # Act & Assert
-    assert repo.get_table_names() == []
+    try:
+        assert repo.get_table_names() == []
+    finally:
+        conn.close()
 
 
 def test_get_table_names_with_tables():
@@ -70,19 +74,25 @@ def test_get_table_names_with_tables():
 
     # Now sqlite_sequence should exist and contain 'test_table'
     # Act
-    table_names = repo.get_table_names()
+    try:
+        table_names = repo.get_table_names()
 
-    # Assert
-    assert "test_table" in table_names
+        # Assert
+        assert "test_table" in table_names
+    finally:
+        conn.close()
 
 
 def test_commit_does_not_raise():
     # Arrange & Act
-    repo = BuildRepository(conn=sqlite3.connect(":memory:"))
+    conn = sqlite3.connect(":memory:")
+    repo = BuildRepository(conn=conn)
     # Should not raise
-    repo.commit()
-
-    # Assert - nothing to assert, just ensuring no exception
+    try:
+        repo.commit()
+        # Assert - nothing to assert, just ensuring no exception
+    finally:
+        conn.close()
 
 
 def test_create_returns_false_if_table_doesnt_exist(sample_week):
@@ -101,14 +111,17 @@ def test_create_returns_false_if_table_doesnt_exist(sample_week):
         moveset_win_rate=0.51,
         moveset_pick_rate=0.15,
         moveset_true_pick_rate=0.1,
-        item="Wise Glasses",
+        item="Purify",
         moveset_item_win_rate=0.52,
         moveset_item_pick_rate=0.12,
         moveset_item_true_pick_rate=0.08,
     )
 
     # Act & Assert: Should return False because table doesn't exist
-    assert repo.create(build, week=sample_week) is False
+    try:
+        assert repo.create(build, week=sample_week) is False
+    finally:
+        conn.close()
 
 
 def test_get_all_pokemons_by_table(build_repository, sample_week):
@@ -125,7 +138,7 @@ def test_get_all_pokemons_by_table(build_repository, sample_week):
         moveset_win_rate=0.61,
         moveset_pick_rate=0.2,
         moveset_true_pick_rate=0.13,
-        item="Leftovers",
+        item="ShedinjaDoll",
         moveset_item_win_rate=0.62,
         moveset_item_pick_rate=0.18,
         moveset_item_true_pick_rate=0.1,
@@ -164,10 +177,13 @@ def test_create_operational_error(sample_week):
     )
 
     # Act
-    result = repo.create(build, week=sample_week)
+    try:
+        result = repo.create(build, week=sample_week)
 
-    # Assert
-    assert result is False
+        # Assert
+        assert result is False
+    finally:
+        conn.close()
 
 
 def test_get_available_weeks(build_repository, sample_week):

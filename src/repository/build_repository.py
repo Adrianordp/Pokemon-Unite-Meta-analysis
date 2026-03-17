@@ -33,7 +33,7 @@ Note that the _create_table method is prefixed with an underscore, indicating
 import os
 import sqlite3
 
-from entity.build_response import BuildResponse
+from entity.build_model import BuildModel
 from util.log import setup_custom_logger
 
 LOG = setup_custom_logger("log_repository")
@@ -56,6 +56,8 @@ class BuildRepository:
         LOG.debug("table_name: %s", table_name)
         LOG.debug("conn: %s", conn)
 
+        self._owns_connection = conn is None
+
         if conn is None:
             LOG.warning("No connection provided, creating a new one")
             db_path = os.environ.get("BUILDS_DB_PATH", "builds.db")
@@ -65,6 +67,42 @@ class BuildRepository:
         self.conn: sqlite3.Connection = conn
         self.cursor: sqlite3.Cursor = self.conn.cursor()
         self.table_name: str = "builds"
+
+    def __enter__(self):
+        """Context manager entry"""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit"""
+        self.close()
+        return False
+
+    def close(self) -> None:
+        """
+        Close the database connection if this instance owns it
+        """
+        if self._owns_connection and self.conn:
+            LOG.info("Closing database connection")
+            try:
+                self.conn.close()
+            except Exception as e:
+                # Silently ignore errors during cleanup
+                # (e.g., thread-safety issues with SQLite)
+                LOG.debug("Error closing connection: %s", e)
+            finally:
+                self.conn = None
+                self.cursor = None
+
+    def __del__(self):
+        """
+        Destructor to ensure connection is closed
+        """
+        try:
+            self.close()
+        except Exception:
+            # Silently ignore any errors during cleanup
+            # This can happen if the connection was created in a different thread
+            pass
 
     def set_table_name(self, table_name) -> None:
         """
@@ -135,12 +173,12 @@ class BuildRepository:
 
         self.conn.commit()
 
-    def create(self, build: BuildResponse, week: str, commit=True) -> bool:
+    def create(self, build: BuildModel, week: str, commit=True) -> bool:
         """
         Create a new build
 
         Args:
-            build (BuildResponse): The build to create
+            build (BuildModel): The build to create
             week (str): The week identifier for the table name
             commit (bool, optional): Whether to commit the changes. Defaults to
                 True.
@@ -188,11 +226,11 @@ class BuildRepository:
             LOG.error("SQLite error creating build: %s", error)
             return False
 
-        LOG.info("BuildResponse inserted successfully")
+        LOG.info("BuildModel inserted successfully")
 
         return True
 
-    def get_all_builds(self, week: str = None) -> list[BuildResponse]:
+    def get_all_builds(self, week: str = None) -> list[BuildModel]:
         """
         Get all builds
 
@@ -201,7 +239,7 @@ class BuildRepository:
                 to None.
 
         Returns:
-            list[BuildResponse]: List of builds
+            list[BuildModel]: List of builds
         """
         LOG.info("get_all_builds")
         LOG.debug("week: %s", week)
@@ -215,7 +253,7 @@ class BuildRepository:
         LOG.debug("query: %s", query)
 
         return [
-            BuildResponse(
+            BuildModel(
                 id=build[0],
                 week=build[1],
                 pokemon=build[2],

@@ -36,7 +36,7 @@ def sample_builds(sample_week):
             moveset_win_rate=52.0,
             moveset_pick_rate=18.0,
             moveset_true_pick_rate=17.0,
-            item="Wise Glasses",
+            item="Purify",
             moveset_item_win_rate=53.0,
             moveset_item_pick_rate=15.0,
             moveset_item_true_pick_rate=14.0,
@@ -53,7 +53,7 @@ def sample_builds(sample_week):
             moveset_win_rate=48.0,
             moveset_pick_rate=13.0,
             moveset_true_pick_rate=12.0,
-            item="Leftovers",
+            item="ShedinjaDoll",
             moveset_item_win_rate=49.0,
             moveset_item_pick_rate=10.0,
             moveset_item_true_pick_rate=9.0,
@@ -70,7 +70,7 @@ def sample_builds(sample_week):
             moveset_win_rate=58.0,
             moveset_pick_rate=22.0,
             moveset_true_pick_rate=21.0,
-            item="Muscle Band",
+            item="XSpeed",
             moveset_item_win_rate=59.0,
             moveset_item_pick_rate=20.0,
             moveset_item_true_pick_rate=19.0,
@@ -252,9 +252,9 @@ def test_item_sort_strategy(sample_builds):
 
     # Assert pt.1
     assert [b.item for b in sorted_builds] == [
-        "Leftovers",
-        "Muscle Band",
-        "Wise Glasses",
+        "Purify",
+        "ShedinjaDoll",
+        "XSpeed",
     ]
 
     # Act pt.2
@@ -262,9 +262,9 @@ def test_item_sort_strategy(sample_builds):
 
     # Assert pt.2
     assert [b.item for b in sorted_builds_rev] == [
-        "Wise Glasses",
-        "Muscle Band",
-        "Leftovers",
+        "XSpeed",
+        "ShedinjaDoll",
+        "Purify",
     ]
 
 

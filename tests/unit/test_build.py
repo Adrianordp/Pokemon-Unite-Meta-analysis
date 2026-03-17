@@ -14,7 +14,7 @@ def test_build_instantiation():
     moveset_win_rate = 0.60
     moveset_pick_rate = 0.15
     moveset_true_pick_rate = 0.10
-    item = "Wise Glasses"
+    item = "Purify"
     moveset_item_win_rate = 0.62
     moveset_item_pick_rate = 0.12
     moveset_item_true_pick_rate = 0.08

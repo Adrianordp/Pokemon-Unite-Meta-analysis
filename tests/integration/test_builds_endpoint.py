@@ -25,7 +25,7 @@ async def test_builds_with_all_params():
         "sort_order": "desc",
         "pokemon": "pikachu",
         "role": "attacker",
-        "item": "muscle_band",
+        "item": "XSpeed",
         "ignore_pokemon": "charizard",
         "ignore_item": "focus_band",
         "ignore_role": "defender",

@@ -24,7 +24,7 @@ def test_manipulate_builds_sort_and_json(sample_week):
             moveset_win_rate=0.62,
             moveset_pick_rate=0.20,
             moveset_true_pick_rate=0.15,
-            item="Leftovers",
+            item="ShedinjaDoll",
             moveset_item_win_rate=0.63,
             moveset_item_pick_rate=0.18,
             moveset_item_true_pick_rate=0.12,

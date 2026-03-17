@@ -58,11 +58,11 @@ Supports query parameters:
 
 ### 8. `/roles`
 - **GET**: Returns a list of available roles.
-- **GET `/roles/{role}`**: Returns detailed information about a specific role.
+- **GET `/roles/{role}`**: Returns detailed information about a specific role. List of pokemon of that role.
 
 ### 9. `/items`
 - **GET**: Returns a list of available items.
-- **GET `/items/{name}`**: Returns detailed information about a specific item.
+- **GET `/items/{name}`**: Returns detailed information about a specific item. List of pokemon that use that item.
 
 ### 10. `/logs`
 - **GET**: Returns logs or summaries of analysis operations (if needed for frontend display).

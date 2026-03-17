@@ -1,11 +1,14 @@
 [project]
 name = "pokemon-unite-meta-analysis"
-version = "0.2.0"
+version = "0.3.0"
 description = "Backend to expose Pokemon Unite data analysis via API"
 authors = [{ name = "Adriano Rodrigues", email = "adrianordp1@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.13,<4.0"
-dependencies = ["fastapi (>=0.116.1,<0.117.0)", "pandas (>=2.3.2,<3.0.0)", "pydantic-settings (>=2.11.0,<3.0.0)", "httpx (>=0.28.1,<0.29.0)"]
+dependencies = ["pandas (>=2.3.2,<3.0.0)"]
+
+[project.scripts]
+pkmn-unite-cli = "cli.main:main"
 
 [tool.poetry]
 include = ["src/**"]
@@ -13,12 +16,22 @@ include = ["src/**"]
 [dependency-groups]
 dev = [
     "pytest (>=8.4.2,<9.0.0)",
-    "uvicorn (>=0.35.0,<0.36.0)",
     "ruff (>=0.13.0,<0.14.0)",
     "pytest-cov (>=7.0.0,<8.0.0)",
     "taskipy (>=1.14.1,<2.0.0)",
     "coverage (>=7.10.7,<8.0.0)",
     "pytest-asyncio (>=1.2.0,<2.0.0)",
+]
+api = [
+    "fastapi (>=0.116.1,<0.117.0)",
+    "uvicorn (>=0.41.0,<0.42.0)",
+    "pydantic-settings (>=2.11.0,<3.0.0)"
+]
+dashboard = [
+    "streamlit (>=1.50.0,<2.0.0)",
+    "plotly (>=6.3.1,<7.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
 ]
 
 [build-system]
@@ -32,7 +45,10 @@ line-length = 80
 test = "pytest -v"
 lint = "ruff check ."
 run = "python -m src.pokemon_unite_meta_analysis"
-coverage = "coverage run -m pytest && coverage report -m && coverage html"
+coverage = "pytest --cov=src --cov-report=xml --cov-report=html --cov-fail-under=90"
+cli = "python -m cli"
+api = "uvicorn api.main:app --reload"
+dashboard = "streamlit run src/dashboard/dashboard.py"
 
 [tool.coverage.run]
 omit = [
