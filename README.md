@@ -262,3 +262,28 @@ poetry run uvicorn api.main:app --reload
 # Production mode
 poetry run uvicorn api.main:app --host 0.0.0.0 --port 8000
 ```
+
+## Docker
+
+### Building the API and Dashboard
+
+Build and run using Docker Compose:
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.build.yml up --build
+```
+
+### Pushing to GHCR
+```bash
+# Login to GitHub Container Registry
+echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
+
+# After building the images
+docker push ghcr.io/<username>/pokemon-unite-api:latest
+docker push ghcr.io/<username>/pokemon-unite-dashboard:latest
+```
+
+### Running with Docker Compose
+```bash
+# On client machine, ensure you have the latest images (if not building locally)
+docker-compose up -d
+```
