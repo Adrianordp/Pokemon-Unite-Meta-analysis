@@ -30,4 +30,7 @@ ENV API_HOST=localhost \
 
 EXPOSE 8050
 
-CMD ["poetry", "run", "python", "-m", "api.main"]
+CMD [ \
+    "poetry", "run", \
+    "python", "-m", "api.main" \
+]
