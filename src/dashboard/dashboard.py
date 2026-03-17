@@ -1,12 +1,18 @@
+import os
+
 import httpx
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from dotenv import load_dotenv
 
-from api.config import settings
+load_dotenv()
 
 # API Base URL
-API_BASE = f"http://{settings.host}:{settings.port}"
+API_HOST = os.getenv("API_HOST", "localhost")
+API_PORT = os.getenv("API_PORT", "8000")
+
+API_BASE = f"http://{API_HOST}:{API_PORT}"
 
 # Role color mapping (similar to CLI but using hex colors for CSS)
 ROLE_COLORS = {
