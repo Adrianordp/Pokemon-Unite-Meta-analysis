@@ -1,0 +1,10 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
