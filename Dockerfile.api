@@ -1,0 +1,33 @@
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src
+
+WORKDIR /app
+
+# Install system dependencies (minimal)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir poetry
+
+# Copy project files
+COPY pyproject.toml ./
+COPY src ./src
+
+# Install only dependencies; project code is imported via PYTHONPATH=/app/src
+RUN poetry install --without dev --no-root
+
+# Copy database file if it exists (for development/testing)
+COPY builds.db ./
+
+# Default API config for container networking
+ENV API_HOST=api \
+    API_PORT=8050
+
+EXPOSE 8050
+
+CMD ["poetry", "run", "python", "-m", "api.main"]

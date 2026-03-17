@@ -1,0 +1,31 @@
+# Use similar patterns as .gitignore to keep images small
+
+__pycache__/
+.vscode/
+
+!sample_builds.db
+*.log
+
+.coverage
+coverage.xml
+htmlcov/
+
+.env
+
+# Git & editor artifacts
+.git/
+.gitignore
+.idea/
+*.swp
+*.swo
+
+# Python caches
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS files
+.DS_Store

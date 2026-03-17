@@ -1,5 +1,6 @@
 from typing import List
 
+import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Path
 
 from api.config import settings
@@ -240,7 +241,7 @@ def read_root():
     summary="Health check endpoint",
     description="""
     Returns the health status of the API. Useful for monitoring and readiness/liveness probes.
-    
+
 **Response:**
 - `status` (str): Always returns `ok` if the API is running.
     """,
@@ -269,7 +270,7 @@ def get_weeks():
     summary="Retrieve builds with filtering, sorting, and relevance options",
     description="""
 Returns a list of Pokémon Unite builds, with options for filtering, sorting, and relevance strategies.
-    
+
 **Query Parameters:**
 - `week` (int, optional): Week number for filtering builds.
 - `id` (int, optional): Build ID for direct lookup.
@@ -880,3 +881,9 @@ def get_logs():
             )
 
     return log_info
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "api.main:app", host=settings.host, port=settings.port, reload=True
+    )

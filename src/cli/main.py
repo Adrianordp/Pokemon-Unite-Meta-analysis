@@ -12,7 +12,9 @@ from typing import Any, Dict, Optional
 import httpx
 import pandas as pd
 
-API_BASE_URL = "http://localhost:8000"
+from api.config import settings
+
+API_BASE_URL = f"http://{settings.host}:{settings.port}"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("pokemon_unite_cli")

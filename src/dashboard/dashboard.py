@@ -3,8 +3,10 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from api.config import settings
+
 # API Base URL
-API_BASE = "http://localhost:8000"
+API_BASE = f"http://{settings.host}:{settings.port}"
 
 # Role color mapping (similar to CLI but using hex colors for CSS)
 ROLE_COLORS = {
@@ -15,26 +17,75 @@ ROLE_COLORS = {
     "All-Rounder": "#7b1fa2",  # Purple (ANSI 93)
 }
 
+
+def apply_theme(mode: str) -> str:
+    """Apply light or dark theme and return plotly template name."""
+
+    if mode == "Dark":
+        background_color = "#0e1117"
+        text_color = "#fafafa"
+        sidebar_bg = "#262730"
+        plotly_template = "plotly_dark"
+    else:
+        background_color = "#ffffff"
+        text_color = "#31333f"
+        sidebar_bg = "#f0f2f6"
+        plotly_template = "plotly_white"
+
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-color: {background_color};
+            color: {text_color};
+        }}
+        .stAppHeader {{
+            background-color: {background_color};
+            color: {text_color};
+        }}
+        section[data-testid="stSidebar"] {{
+            background-color: {sidebar_bg};
+            color: {text_color};
+        }}
+        p {{
+            color: {text_color};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    return plotly_template
+
+
 st.set_page_config(layout="wide", page_title="Pokémon Unite Meta Dashboard")
 st.title("Pokémon Unite Meta Dashboard")
 
 
-def colorize_by_role(row):
-    """
-    Apply role-based coloring to DataFrame rows.
-    Returns a list of CSS styles for each cell in the row.
-    """
+def colorize_by_role(row, theme_mode: str):
+    """Apply role-based and theme-aware styling to a DataFrame row."""
+
+    if theme_mode == "Dark":
+        background_color = "#111827"
+        default_text_color = "#fafafa"
+    else:
+        background_color = "#ffffff"
+        default_text_color = "#31333f"
+
     role = row.get("role", "")
-    color = ROLE_COLORS.get(
-        role, "#000000"
-    )  # Default to black if role not found
-    return [f"color: {color}" for _ in row]
+    text_color = ROLE_COLORS.get(role, default_text_color)
+
+    return [
+        f"color: {text_color}; background-color: {background_color}"
+        for _ in row
+    ]
 
 
 # Fetch metadata from API
 @st.cache_data(ttl=300)  # Cache for 5 minutes
 def fetch_metadata():
     """Fetch all metadata from the API"""
+
     try:
         weeks = httpx.get(f"{API_BASE}/weeks").json()
         pokemon = httpx.get(f"{API_BASE}/pokemon").json()
@@ -61,6 +112,17 @@ if metadata is None:
     st.stop()
 
 # Sidebar filters
+st.sidebar.header("Appearance")
+
+theme_mode = st.sidebar.radio(
+    "Theme",
+    options=["Light", "Dark"],
+    index=0,
+    help="Choose between light and dark mode.",
+)
+
+plotly_template = apply_theme(theme_mode)
+
 st.sidebar.header("Filters")
 
 # Week selection
@@ -254,8 +316,31 @@ if response.status_code == 200:
 
     st.subheader(f"Builds ({len(data)} results)")
 
-    # Apply role-based coloring to the dataframe
-    styled_data = data.style.apply(colorize_by_role, axis=1)
+    # Apply theme-aware, role-based styling to the dataframe
+    styled_data = data.style.apply(
+        colorize_by_role,
+        axis=1,
+        theme_mode=theme_mode,
+    )
+
+    if theme_mode == "Dark":
+        header_bg = "#262730"
+        header_text = "#fafafa"
+    else:
+        header_bg = "#f0f2f6"
+        header_text = "#31333f"
+
+    styled_data = styled_data.set_table_styles(
+        [
+            {
+                "selector": "th",
+                "props": [
+                    ("background-color", header_bg),
+                    ("color", header_text),
+                ],
+            }
+        ]
+    )
 
     st.dataframe(styled_data, hide_index=True)
 else:
@@ -290,10 +375,11 @@ if not data.empty:
         y=y_axis,
         title=f"{x_axis} vs {y_axis}",
         hover_data=["pokemon", "rank"],
+        template=plotly_template,
     )
 
     # Rotate x-axis labels if x-axis is categorical (e.g., pokemon names)
     if x_axis in ("pokemon", "move 1", "move 2", "item"):
         fig.update_xaxes(tickangle=-90)
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig)
