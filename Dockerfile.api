@@ -25,7 +25,7 @@ RUN poetry install --without dev --no-root
 COPY builds.db ./
 
 # Default API config for container networking
-ENV API_HOST=api \
+ENV API_HOST=localhost \
     API_PORT=8050
 
 EXPOSE 8050
