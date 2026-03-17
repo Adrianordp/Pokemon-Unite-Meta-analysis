@@ -12,7 +12,8 @@ RUN apt-get update \
        build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir poetry
+# Install poetry for dependency management
+RUN pip install poetry
 
 # Copy project files
 COPY pyproject.toml ./
@@ -21,7 +22,7 @@ COPY src ./src
 # Install only dependencies; project code is imported via PYTHONPATH=/app/src
 RUN poetry install --without dev --no-root
 
-# Copy database file if it exists (for development/testing)
+# Copy database file
 COPY builds.db ./
 
 # Default API config for container networking
