@@ -3,15 +3,23 @@ name = "pokemon-unite-meta-analysis"
 version = "0.3.0"
 description = "Backend to expose Pokemon Unite data analysis via API"
 authors = [{ name = "Adriano Rodrigues", email = "adrianordp1@gmail.com" }]
-readme = "README.md"
 requires-python = ">=3.12,<4.0"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 dependencies = ["pandas (>=2.3.2,<3.0.0)"]
 
 [project.scripts]
 pkmn-unite-cli = "cli.main:main"
 
-[tool.poetry]
-include = ["src/**"]
+[tool.uv]
+
+[tool.uv.build-backend]
+source-include = ["src/**"]
 
 [dependency-groups]
 dev = [
@@ -26,17 +34,19 @@ api = [
     "fastapi (>=0.116.1,<0.117.0)",
     "uvicorn (>=0.41.0,<0.42.0)",
     "pydantic-settings (>=2.11.0,<3.0.0)"
+,
 ]
 dashboard = [
     "streamlit (>=1.50.0,<2.0.0)",
     "plotly (>=6.3.1,<7.0.0)",
     "httpx (>=0.28.1,<0.29.0)",
     "dotenv (>=0.9.9,<0.10.0)"
+,
 ]
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.11.1,<0.12.0"]
+build-backend = "uv_build"
 
 [tool.ruff]
 line-length = 80
