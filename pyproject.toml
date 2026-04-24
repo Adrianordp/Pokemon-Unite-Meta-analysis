@@ -4,7 +4,7 @@ version = "0.3.0"
 description = "Backend to expose Pokemon Unite data analysis via API"
 authors = [{ name = "Adriano Rodrigues", email = "adrianordp1@gmail.com" }]
 readme = "README.md"
-requires-python = ">=3.13,<4.0"
+requires-python = ">=3.12,<4.0"
 dependencies = ["pandas (>=2.3.2,<3.0.0)"]
 
 [project.scripts]
