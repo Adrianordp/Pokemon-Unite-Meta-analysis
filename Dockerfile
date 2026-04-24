@@ -9,7 +9,7 @@ WORKDIR /app
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       build-essential \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install poetry
@@ -32,7 +32,7 @@ EXPOSE 8050
 CMD [ \
     "poetry", "run", \
     "python", "-m", "api.main" \
-]
+    ]
 
 # ── dashboard ──────────────────────────────────────────────────────────────────
 FROM base AS dashboard
@@ -40,7 +40,7 @@ FROM base AS dashboard
 RUN poetry install --only main,dashboard --no-root
 
 ENV API_HOST=localhost \
-    API_PORT=8000
+    API_PORT=8050
 
 EXPOSE 8501
 
@@ -49,4 +49,4 @@ CMD [ \
     "streamlit", "run", "src/dashboard/dashboard.py", \
     "--server.address=0.0.0.0", \
     "--server.port=8501" \
-]
+    ]

@@ -33,8 +33,9 @@ dev = [
 api = [
     "fastapi (>=0.116.1,<0.117.0)",
     "uvicorn (>=0.41.0,<0.42.0)",
-    "pydantic-settings (>=2.11.0,<3.0.0)"
-,
+    "pydantic-settings (>=2.11.0,<3.0.0)",
+    "pydantic>=2.12.5",
+    "httpx>=0.28.1",
 ]
 dashboard = [
     "streamlit (>=1.50.0,<2.0.0)",
@@ -58,7 +59,7 @@ run = "python -m src.pokemon_unite_meta_analysis"
 coverage = "pytest --cov=src --cov-report=xml --cov-report=html --cov-fail-under=90"
 cli = "python -m cli"
 api = "uvicorn api.main:app --reload"
-dashboard = "streamlit run src/dashboard/dashboard.py"
+dashboard = "uv run --group dashboard streamlit run src/dashboard/dashboard.py"
 
 [tool.coverage.run]
 omit = [

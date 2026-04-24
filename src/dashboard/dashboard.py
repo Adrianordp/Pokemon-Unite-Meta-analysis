@@ -10,7 +10,7 @@ load_dotenv()
 
 # API Base URL
 API_HOST = os.getenv("API_HOST", "localhost")
-API_PORT = os.getenv("API_PORT", "8000")
+API_PORT = os.getenv("API_PORT", "8050")
 
 API_BASE = f"http://{API_HOST}:{API_PORT}"
 
