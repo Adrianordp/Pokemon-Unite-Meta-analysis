@@ -1,7 +1,7 @@
-from typing import List
+from typing import Awaitable, Callable, List
 
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Path
+from fastapi import Depends, FastAPI, HTTPException, Path, Request, Response
 
 from api.config import settings
 from api.custom_log import LOG
@@ -92,6 +92,25 @@ def _convert_to_build_response(
         )
 
     return responses
+
+
+@app.middleware("http")
+async def add_secutity_headers(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+
+    if "Referrer-Policy" not in response.headers:
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    if request.url.hostname not in ["localhost", "127.0.0.1"]:
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=63072000; includeSubDomains"
+        )
+
+    return response
 
 
 # /pokemon endpoints
