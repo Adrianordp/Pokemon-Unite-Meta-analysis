@@ -1,52 +1,61 @@
 # ── base: shared setup ────────────────────────────────────────────────────────
 FROM python:3.13-slim AS base
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app/src
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=0
 
-RUN pip install poetry
+COPY pyproject.toml uv.lock README.md ./
 
-COPY pyproject.toml poetry.lock ./
+RUN uv sync --locked --no-install-project --group api --group dashboard
+
 COPY src ./src
 
+RUN uv sync --locked --no-dev --group api --group dashboard
+
 # ── api ────────────────────────────────────────────────────────────────────────
-FROM base AS api
+FROM python:3.13-slim AS api
+WORKDIR /app
 
-RUN poetry install --only main,api --no-root
+RUN useradd -m appuser
+RUN chown -R appuser:appuser /app
 
+COPY --from=base --chown=appuser:appuser /app /app
 COPY builds.db ./
 
-ENV API_HOST=localhost \
-    API_PORT=8050
+ENV PYTHONPATH=/app/.venv/bin:$PATH
+ENV PYTHONBUFFERED=1
+ENV API_HOST=localhost
+ENV API_PORT=8050
 
 EXPOSE 8050
 
-CMD [ \
-    "poetry", "run", \
-    "python", "-m", "api.main" \
-    ]
+# Start FastAPI using uvicorn from the project virtualenv.
+CMD ["/bin/sh", "-c", "exec /app/.venv/bin/uvicorn api.main:app --host 0.0.0.0 --port \"${API_PORT}\" --proxy-headers --forwarded-allow-ips='*'"]
 
 # ── dashboard ──────────────────────────────────────────────────────────────────
-FROM base AS dashboard
+FROM python:3.13-slim AS dashboard
+WORKDIR /app
 
-RUN poetry install --only main,dashboard --no-root
+RUN useradd -m appuser
+RUN chown -R appuser:appuser /app
 
-ENV API_HOST=localhost \
-    API_PORT=8050
+COPY --from=base --chown=appuser:appuser /app /app
+
+ENV PYTHONPATH=/app/.venv/bin:$PATH
+ENV PYTHONBUFFERED=1
+ENV API_HOST=localhost
+ENV API_PORT=8050
 
 EXPOSE 8501
 
-CMD [ \
-    "poetry", "run", \
-    "streamlit", "run", "src/dashboard/dashboard.py", \
-    "--server.address=0.0.0.0", \
-    "--server.port=8501" \
+CMD ["/bin/sh", "-c", \
+    "exec /app/.venv/bin/streamlit run src/dashboard/dashboard.py --server.address=0.0.0.0 --server.port=8501" \
     ]
